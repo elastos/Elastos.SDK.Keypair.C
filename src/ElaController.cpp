@@ -42,9 +42,11 @@ std::string ElaController::genRawTransaction(std::string jsonStr)
         }
     }
 
-    //TODO: add memo
-
-    Transaction* transaction = new Transaction(utxoInputs, outputs);
+    std::string memo;
+    if (!jTransaction["Memo"].is_null()) {
+        memo = jTransaction["Memo"].get<std::string>();
+    }
+    Transaction* transaction = new Transaction(utxoInputs, outputs, memo);
     if (!transaction)
     {
 

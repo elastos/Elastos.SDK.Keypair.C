@@ -7,6 +7,7 @@ set(SOURCES
     BRCrypto.c
     BRAddress.c
     BRBase58.c
+    BRBech32.c
     BRBIP39Mnemonic.c
     Mnemonic.cpp
     WalletTool.cpp
@@ -21,6 +22,7 @@ set(SOURCES
     Transaction/Transaction.cpp
     Transaction/TxOutput.cpp
     Transaction/UTXOInput.cpp
+    Elastos.Wallet.Utility.cpp
 )
 
 add_library(Elastos.Wallet.Utility SHARED ${SOURCES})
@@ -28,4 +30,5 @@ add_library(Elastos.Wallet.Utility SHARED ${SOURCES})
 target_link_libraries(Elastos.Wallet.Utility
     ssl
     crypto
+    pthread
 )

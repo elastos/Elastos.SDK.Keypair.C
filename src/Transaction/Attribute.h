@@ -5,14 +5,23 @@
 #include "../Utils.h"
 #include "../CMemBlock.h"
 #include "../ByteStream.h"
+#include "../BigIntFormat.h"
 
 class Attribute
 {
 public:
-    Attribute()
+    Attribute(std::string memo)
     {
-        mUsage = 0;
-        mData = Utils::convertToMemBlock(std::to_string(std::rand()));
+        if (memo.empty()) {
+             mUsage = 0;
+            mData = Utils::convertToMemBlock(std::to_string(std::rand()));
+        }
+        else {
+            mUsage = 0x81;
+            CMemBlock<char> cMemo;
+            cMemo.SetMemFixed(memo.c_str(), memo.size() + 1);
+            mData = Str2Hex(cMemo);
+        }
     }
 
     void Serialize(ByteStream& ostream);

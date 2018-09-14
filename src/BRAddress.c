@@ -24,7 +24,7 @@
 
 #include "BRAddress.h"
 #include "BRBase58.h"
-// #include "BRBech32.h"
+#include "BRBech32.h"
 #include "BRInt.h"
 #include <inttypes.h>
 #include <assert.h>

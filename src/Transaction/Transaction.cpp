@@ -12,13 +12,14 @@ Transaction::Transaction()
     , mFee(0)
     , mTxHash(UINT256_ZERO)
 {
-    Attribute* pAttr = new Attribute();
+    std::string memo;
+    Attribute* pAttr = new Attribute(memo);
     if (pAttr) {
         mAttributes.push_back(pAttr);
     }
 }
 
-Transaction::Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs)
+Transaction::Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs, std::string memo)
     : mType(TransferAsset)
     , mPayloadVersion(0)
     , mPayload(nullptr)
@@ -28,7 +29,7 @@ Transaction::Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> 
     , mFee(0)
     , mTxHash(UINT256_ZERO)
 {
-    Attribute* pAttr = new Attribute();
+    Attribute* pAttr = new Attribute(memo);
     if (pAttr) {
         mAttributes.push_back(pAttr);
     }

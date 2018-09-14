@@ -31,7 +31,7 @@ class Transaction
 public:
     Transaction();
 
-    Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs);
+    Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs, std::string memo);
 
     ~Transaction();
 
