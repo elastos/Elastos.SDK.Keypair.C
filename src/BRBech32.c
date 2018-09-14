@@ -48,7 +48,7 @@ size_t BRBech32Decode(char *hrp84, uint8_t *data42, const char *addr)
     assert(hrp84 != NULL);
     assert(data42 != NULL);
     assert(addr != NULL);
-    
+
     for (i = 0; addr && addr[i]; i++) {
         if (addr[i] < 33 || addr[i] > 126) return 0;
         if (islower(addr[i])) lower = 1;
@@ -75,7 +75,7 @@ size_t BRBech32Decode(char *hrp84, uint8_t *data42, const char *addr)
             case 'u': c = 28; break; case 'a': c = 29; break; case '7': c = 30; break; case 'l': c = 31; break;
             default: return 0; // invalid bech32 digit
         }
-        
+
         chk = polymod(chk) ^ c;
         if (j == -1) ver = c;
         if (j == -1 || i + 6 >= addrLen) continue;
@@ -83,7 +83,7 @@ size_t BRBech32Decode(char *hrp84, uint8_t *data42, const char *addr)
         buf[(j/8)*5 + (j % 8)*5/8] |= (c << 3) >> x;
         if (x > 3) buf[(j/8)*5 + (j % 8)*5/8 + 1] |= c << (11 - x);
     }
-    
+
     bufLen = (addrLen - (sep + 2 + 6))*5/8;
     if (hrp84 == NULL || data42 == NULL || chk != 1 || ver > 16 || bufLen < 2 || bufLen > 40) return 0;
     assert(sep < 84);
@@ -109,13 +109,13 @@ size_t BRBech32Encode(char *addr91, const char *hrp, const uint8_t data[])
     assert(addr91 != NULL);
     assert(hrp != NULL);
     assert(data != NULL);
-    
+
     for (i = 0; hrp && hrp[i]; i++) {
         if (i > 83 || hrp[i] < 33 || hrp[i] > 126 || isupper(hrp[i])) return 0;
         chk = polymod(chk) ^ (hrp[i] >> 5);
         addr[i] = hrp[i];
     }
-    
+
     chk = polymod(chk);
     for (j = 0; j < i; j++) chk = polymod(chk) ^ (hrp[j] & 0x1f);
     addr[i++] = '1';
@@ -125,7 +125,7 @@ size_t BRBech32Encode(char *addr91, const char *hrp, const uint8_t data[])
     if (ver > 16 || len < 2 || len > 40 || i + 1 + len + 6 >= 91) return 0;
     chk = polymod(chk) ^ ver;
     addr[i++] = chars[ver];
-    
+
     for (j = 0; j <= len; j++) {
         a = b, b = (j < len) ? data[2 + j] : 0;
         x = (j % 5)*8 - ((j % 5)*8/5)*5;
@@ -134,7 +134,7 @@ size_t BRBech32Encode(char *addr91, const char *hrp, const uint8_t data[])
         if (x >= 2) c = (b >> (x - 2)) & 0x1f;
         if (x >= 2 && j < len) chk = polymod(chk) ^ c, addr[i++] = chars[c];
     }
-    
+
     for (j = 0; j < 6; j++) chk = polymod(chk);
     chk ^= 1;
     for (j = 0; j < 6; ++j) addr[i++] = chars[(chk >> ((5 - j)*5)) & 0x1f];

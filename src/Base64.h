@@ -11,9 +11,9 @@
 
 class Base64 {
 public:
-	static std::vector<unsigned char> toBits(const std::string &base64Str);
+    static std::vector<unsigned char> toBits(const std::string &base64Str);
 
-	static std::string fromBits(const unsigned char *bits, size_t length);
+    static std::string fromBits(const unsigned char *bits, size_t length);
 };
 
 

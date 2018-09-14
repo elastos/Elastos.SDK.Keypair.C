@@ -11,8 +11,8 @@
 
 class BTCBase58 {
 public:
-	static std::string EncodeBase58(unsigned char *pData, size_t pDataLen);
-	static CMemBlock<unsigned char> DecodeBase58(const std::string &str);
+    static std::string EncodeBase58(unsigned char *pData, size_t pDataLen);
+    static CMemBlock<unsigned char> DecodeBase58(const std::string &str);
 };
 
 

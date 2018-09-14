@@ -16,50 +16,50 @@
 
 
 Mnemonic::Mnemonic(const std::string &language) :
-	_i18nPath("data") {
-	_language = language;
-	setLanguage(language);
+    _i18nPath("data") {
+    _language = language;
+    setLanguage(language);
 }
 
 Mnemonic::Mnemonic(const std::string &language, const std::string &path) {
-	setI18nPath(path);
-	_language = language;
-	setLanguage(language);
+    setI18nPath(path);
+    _language = language;
+    setLanguage(language);
 }
 
 void Mnemonic::setLanguage(const std::string &language) {
-	_words.clear();
+    _words.clear();
 
-	_words.reserve(BIP39_WORDLIST_COUNT);
-	_language = language;
+    _words.reserve(BIP39_WORDLIST_COUNT);
+    _language = language;
 
-	if (language == "english" || language == "") {
-		for (std::string str : BRBIP39WordsEn) {
-			_words.push_back(str);
-		}
-	} else {
-		char fileName[512];
-		strcpy(fileName, _i18nPath);
-		strcat(fileName, MNEMONIC_PREFIX);
-		strcat(fileName, language.c_str());
-		strcat(fileName, MNEMONIC_EXTENSION);
-		loadLanguage(fileName);
-	}
+    if (language == "english" || language == "") {
+        for (std::string str : BRBIP39WordsEn) {
+            _words.push_back(str);
+        }
+    } else {
+        char fileName[512];
+        strcpy(fileName, _i18nPath);
+        strcat(fileName, MNEMONIC_PREFIX);
+        strcat(fileName, language.c_str());
+        strcat(fileName, MNEMONIC_EXTENSION);
+        loadLanguage(fileName);
+    }
 
-	// ParamChecker::checkLangWordsCnt(_words.size());
+    // ParamChecker::checkLangWordsCnt(_words.size());
 }
 
 std::string Mnemonic::getLanguage() const {
-	return _language;
+    return _language;
 }
 
 void Mnemonic::loadLanguage(const std::string &path) {
 
-	std::fstream infile(path);
-	std::string line;
-	while (std::getline(infile, line)) {
-		_words.push_back(line);
-	}
+    std::fstream infile(path);
+    std::string line;
+    while (std::getline(infile, line)) {
+        _words.push_back(line);
+    }
 }
 
 void Mnemonic::setI18nPath(const std::string &path) {
@@ -67,6 +67,6 @@ void Mnemonic::setI18nPath(const std::string &path) {
 }
 
 const std::vector<std::string> &Mnemonic::words() const {
-	return _words;
+    return _words;
 }
 
