@@ -27,8 +27,15 @@ set(SOURCES
 
 add_library(Elastos.Wallet.Utility SHARED ${SOURCES})
 
-target_link_libraries(Elastos.Wallet.Utility
-    ssl
-    crypto
-    pthread
-)
+if("$ENV{TARGET_PLATFORM}" STREQUAL "android")
+    target_link_libraries(Elastos.Wallet.Utility
+        ssl
+        crypto
+    )
+elseif("$ENV{TARGET_PLATFORM}" STREQUAL "linux")
+    target_link_libraries(Elastos.Wallet.Utility
+        ssl
+        crypto
+        pthread
+    )
+endif()

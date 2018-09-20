@@ -94,12 +94,12 @@ int sign(const char* privateKey, const void* data, int len, void** signedData)
         int signedlen = mbSignedData.GetSize();
         void* buf = malloc(signedlen);
         if (!buf) return 0;
-        memcpy(buf, mbSignedData, len);
+        memcpy(buf, mbSignedData, signedlen);
         *signedData = buf;
-        return len;
+        return signedlen;
     }
 
-    return ret;
+    return 0;
 }
 
 bool verify(const char* publicKey, const void* data,

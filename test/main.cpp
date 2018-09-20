@@ -14,6 +14,9 @@ void TestGenerateKey()
     char* publicKey = getPublicKey(privateKey);
     printf("public key: %s\n", publicKey);
 
+    char* address = getAddress(publicKey);
+    printf("address: %s\n", address);
+
     printf("============= sign by private key ===========\n");
     uint8_t data[] = {0, 1, 2, 3, 4, 5};
     uint8_t* signedData;

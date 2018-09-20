@@ -1,3 +1,4 @@
 
 #build folder
-/build
+/build/android*
+/build/linux*
