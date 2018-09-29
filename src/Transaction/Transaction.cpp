@@ -1,7 +1,7 @@
 
 #include "Transaction.h"
 #include "../BRCrypto.h"
-#include "../BTCKey.h"
+#include "../BRBIP32Sequence.h"
 #include "../BigIntFormat.h"
 
 Transaction::Transaction()
@@ -93,9 +93,12 @@ void Transaction::Sign(const CMBlock & privteKey)
     md32.SetMemFixed(shaData, shaData.GetSize());
 
     CMBlock signedData;
-    BTCKey::ECDSA65Sign_sha256(privteKey, *(UInt256 *) &md32[0], signedData, NID_X9_62_prime256v1);
+    signedData.Resize(65);
+    ECDSA65Sign_sha256(privteKey, privteKey.GetSize(), (UInt256 *) &md32[0], signedData, signedData.GetSize());
 
-    CMBlock publicKey = BTCKey::getPubKeyFromPrivKey(privteKey, NID_X9_62_prime256v1);
+    CMBlock publicKey;
+    publicKey.Resize(33);
+    getPubKeyFromPrivKey(publicKey, (UInt256 *)(uint8_t *)privteKey);
 
     CMemBlock<char> cPrivkey, cPubkey;
     cPrivkey = Hex2Str(privteKey);

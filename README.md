@@ -30,7 +30,9 @@ $ cmake ../..
 $ make
 ```
 
-### Build for iossimulator
+
+## Build on Mac
+### Build for ios simulator
 
 ```shell
 $ cd build

@@ -3,21 +3,22 @@
 
 #include <iostream>
 
-void TestGenerateKey()
+
+void TestGenrateMnemonic()
 {
-    printf("============= start TestGenerateKey ===========\n");
-    printf("============= generate key ===========\n");
+    printf("============= start TestGenrateMnemonic ===========\n");
+    char* mnemonic = generateMnemonic("chinese", "/home/zuo/work/Elastos.ORG.Wallet.Utility/src/Data/");
+    printf("mnemonic: %s\n", mnemonic);
 
-    char* privateKey = generatePrivateKey();
-    printf("private key: %s\n", privateKey);
-
+    char* privateKey = getMasterPrivateKey(mnemonic, "chinese", "/home/zuo/work/Elastos.ORG.Wallet.Utility/src/Data/", "");
     char* publicKey = getPublicKey(privateKey);
+
+    printf("private key: %s\n", privateKey);
     printf("public key: %s\n", publicKey);
 
     char* address = getAddress(publicKey);
     printf("address: %s\n", address);
 
-    printf("============= sign by private key ===========\n");
     uint8_t data[] = {0, 1, 2, 3, 4, 5};
     uint8_t* signedData;
     int signedLen = sign(privateKey, data, sizeof(data), (void**)&signedData);
@@ -36,27 +37,6 @@ void TestGenerateKey()
 
         printf("============= sign failed ===========\n");
     }
-
-    free(privateKey);
-    free(publicKey);
-    free(signedData);
-    printf("============= end TestGenerateKey ===========\n\n");
-}
-
-void TestGenrateMnemonic()
-{
-    printf("============= start TestGenrateMnemonic ===========\n");
-    char* mnemonic = generateMnemonic("chinese", "/home/zuo/work/Elastos.ORG.Wallet.Utility/Sources/Sample/TestOpenssl/Data/");
-    printf("mnemonic: %s\n", mnemonic);
-
-    char* privateKey = getPrivateKey(mnemonic, "chinese", "/home/zuo/work/Elastos.ORG.Wallet.Utility/Sources/Sample/TestOpenssl/Data/");
-    char* publicKey = getPublicKey(privateKey);
-
-    printf("private key: %s\n", privateKey);
-    printf("public key: %s\n", publicKey);
-
-    char* address = getAddress(publicKey);
-    printf("address: %s\n", address);
 
     free(mnemonic);
     free(privateKey);
@@ -78,7 +58,6 @@ void signTxData(const char* data)
 }
 
 const char *c_help = \
-    "genkey    test generate private key, public key, sign, verify.\n" \
     "genmne    test generate mnemonic, get private key, public key, address.\n" \
     "sign      test generate raw transaction.\n" \
     "help      show help message.\n" \
@@ -100,9 +79,6 @@ int main(int argc, char *argv[])
             std::cout << "input trasaction data: ";
             std::getline(std::cin, json);
             signTxData(json.c_str());
-        }
-        else if (!command.compare("genkey")) {
-            TestGenerateKey();
         }
         else if (!command.compare("help")) {
             std::cout << c_help;

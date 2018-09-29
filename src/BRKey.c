@@ -30,12 +30,34 @@
 #include <assert.h>
 #include <pthread.h>
 
+#if __BIG_ENDIAN__ || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) ||\
+    __ARMEB__ || __THUMBEB__ || __AARCH64EB__ || __MIPSEB__
+#define WORDS_BIGENDIAN        1
+#endif
+#define DETERMINISTIC          1
+#define USE_BASIC_CONFIG       1
+#define ENABLE_MODULE_RECOVERY 1
+
+#pragma clang diagnostic push
+#pragma GCC diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wconditional-uninitialized"
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#include "secp256k1/src/basic-config.h"
+#include "secp256k1/src/secp256k1.c"
+#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
+
 static pthread_once_t _ctx_once = PTHREAD_ONCE_INIT;
+static secp256k1_context *_ctx = NULL;
 
 static void _ctx_init()
 {
     //pthread_detach(pthread_self());
-    // _ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+    _ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 }
 
 // assigns secret to key and returns true on success
@@ -48,8 +70,7 @@ int BRKeySetSecret(BRKey *key, const UInt256 *secret, int compressed)
     BRKeyClean(key);
     UInt256Get(&key->secret, secret);
     key->compressed = compressed;
-    return 1;
-    // return secp256k1_ec_seckey_verify(_ctx, key->secret.u8);
+    return secp256k1_ec_seckey_verify(_ctx, key->secret.u8);
 }
 
 // wipes key material from key
@@ -57,4 +78,38 @@ void BRKeyClean(BRKey *key)
 {
     assert(key != NULL);
     var_clean(key);
+}
+
+// writes the DER encoded public key to pubKey and returns number of bytes written, or pkLen needed if pubKey is NULL
+size_t BRKeyPubKey(BRKey *key, void *pubKey, size_t pkLen)
+{
+    static uint8_t empty[65]; // static vars initialize to zero
+    size_t size = (key->compressed) ? 33 : 65;
+    secp256k1_pubkey pk;
+
+    assert(key != NULL);
+
+    if (memcmp(key->pubKey, empty, size) == 0) {
+        if (secp256k1_ec_pubkey_create(_ctx, &pk, key->secret.u8)) {
+            secp256k1_ec_pubkey_serialize(_ctx, key->pubKey, &size, &pk,
+                                          (key->compressed ? SECP256K1_EC_COMPRESSED : SECP256K1_EC_UNCOMPRESSED));
+        }
+        else size = 0;
+    }
+
+    if (pubKey && size <= pkLen) memcpy(pubKey, key->pubKey, size);
+    return (! pubKey || size <= pkLen) ? size : 0;
+}
+
+// returns the ripemd160 hash of the sha256 hash of the public key
+UInt160 BRKeyHash160(BRKey *key)
+{
+    UInt160 hash = UINT160_ZERO;
+    size_t len;
+    secp256k1_pubkey pk;
+
+    assert(key != NULL);
+    len = BRKeyPubKey(key, NULL, 0);
+    if (len > 0 && secp256k1_ec_pubkey_parse(_ctx, &pk, key->pubKey, len)) BRHash160(&hash, key->pubKey, len);
+    return hash;
 }

@@ -1,7 +1,6 @@
 
 
 set(SOURCES
-    BTCKey.cpp
     BRInt.c
     BRKey.c
     BRCrypto.c
@@ -9,6 +8,7 @@ set(SOURCES
     BRBase58.c
     BRBech32.c
     BRBIP39Mnemonic.c
+    BRBIP32Sequence.c
     Mnemonic.cpp
     WalletTool.cpp
     Utils.cpp

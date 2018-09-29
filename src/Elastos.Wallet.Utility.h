@@ -8,15 +8,13 @@
 extern "C" {
 #endif
 
-char* generatePrivateKey();
-
 char* getPublicKey(const char* privateKey);
 
 char* getAddress(const char* publicKey);
 
 char* generateMnemonic(const char* language, const char* path);
 
-char* getPrivateKey(const char* mmemonic, const char* language, const char* path);
+char* getMasterPrivateKey(const char* mmemonic, const char* language, const char* path, const char* password);
 
 int sign(const char* privateKey, const void* data, int len, void** signedData);
 
