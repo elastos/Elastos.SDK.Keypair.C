@@ -31,13 +31,20 @@ if("$ENV{TARGET_PLATFORM}" STREQUAL "android")
     message($ENV{TARGET_ABI})
     set(CMAKE_ANDROID_ARCH_ABI $ENV{TARGET_ABI})
 
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
+elseif("$ENV{TARGET_PLATFORM}" STREQUAL "ios")
+    set(CMAKE_SYSTEM_NAME Darwin)
+    set(CMAKE_CROSSCOMPILING TRUE)
+
+    set(CMAKE_OSX_SYSROOT $ENV{OSX_SDK})
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-undefined,error")
+else("$ENV{TARGET_PLATFORM}" STREQUAL "android")
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
 endif("$ENV{TARGET_PLATFORM}" STREQUAL "android")
 
 project(utility)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
-
-string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
 
 include_directories(
   thirdparty

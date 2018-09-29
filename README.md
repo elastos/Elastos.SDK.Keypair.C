@@ -29,3 +29,13 @@ $ cd android
 $ cmake ../..
 $ make
 ```
+
+### Build for iossimulator
+
+```shell
+$ cd build
+$ . ios.sh x86_64
+$ cd ios
+$ cmake ../..
+$ make -j4
+```
