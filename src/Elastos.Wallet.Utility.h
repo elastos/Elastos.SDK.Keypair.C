@@ -3,18 +3,35 @@
 #define __ELASTOS_WALLET_UTILITY_H__
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-char* getPublicKey(const char* privateKey);
+#define EXTERNAL_CHAIN     0
+#define INTERNAL_CHAIN     1
+
+#define COIN_TYPE_ELA      2305
+
+typedef struct
+{
+    uint32_t fingerPrint;
+    uint8_t chainCode[32];
+    uint8_t publicKey[33];
+} MasterPublicKey;
+
+char* getSinglePublicKey(const void* seed, int seedLen);
+
+char* getSinglePrivateKey(const void* seed, int seedLen);
+
+MasterPublicKey* getMasterPublicKey(const void* seed, int seedLen, int coinType);
 
 char* getAddress(const char* publicKey);
 
 char* generateMnemonic(const char* language, const char* path);
 
-char* getMasterPrivateKey(const char* mmemonic, const char* language, const char* path, const char* password);
+int getSeedFromMnemonic(void** seed, const char* mnemonic, const char* language, const char* path, const char* mnemonicPassword);
 
 int sign(const char* privateKey, const void* data, int len, void** signedData);
 
@@ -22,6 +39,11 @@ bool verify(const char* publicKey, const void* data, int len, const void* signed
 
 char* generateRawTransaction(const char* transaction);
 
+char* generateSubPrivateKey(const void* seed, int seedLen, int coinType, int chain, int index);
+
+char* generateSubPublicKey(const MasterPublicKey* masterPublicKey, int chain, int index);
+
+void freeBuf(void* buf);
 
 #ifdef __cplusplus
 }

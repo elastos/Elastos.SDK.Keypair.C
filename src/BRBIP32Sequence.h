@@ -69,7 +69,7 @@ void BRBIP32PrivKeyList(BRKey keys[], size_t keysCount, const void *seed, size_t
                         const uint32_t indexes[]);
 
 void BRBIP44PrivKeyList(BRKey keys[], size_t keysCount, const void *seed, size_t seedLen, uint32_t coinIndex, uint32_t chain,
-						const uint32_t indexes[]);
+                        const uint32_t indexes[]);
 
 size_t BRBIP32PubKeyPath(uint8_t *pubKey, size_t pubKeyLen, BRMasterPubKey mpk, int depth, ...);
 
@@ -109,7 +109,7 @@ void getPubKeyFromPrivKey(void *brecPoint, const UInt256 *k);
 size_t ECDSA65Sign_sha256(const void *privKey, size_t privKeyLen, const UInt256 *md, void *signedData, size_t signedDataSize);
 
 int ECDSA65Verify_sha256(const void *pubKey, size_t pubKeyLen, const UInt256 *md, const void *signedData,
-						 size_t signedDataLen);
+                         size_t signedDataLen);
 
 #ifdef __cplusplus
 }
