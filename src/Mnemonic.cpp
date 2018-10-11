@@ -18,16 +18,16 @@
 Mnemonic::Mnemonic(const std::string &language) :
     _i18nPath("data") {
     _language = language;
-    setLanguage(language);
+    setLanguage(language, "");
 }
 
-Mnemonic::Mnemonic(const std::string &language, const std::string &path) {
-    setI18nPath(path);
+Mnemonic::Mnemonic(const std::string &language, const std::string &words) {
+    // setI18nPath(path);
     _language = language;
-    setLanguage(language);
+    setLanguage(language, words);
 }
 
-void Mnemonic::setLanguage(const std::string &language) {
+void Mnemonic::setLanguage(const std::string &language, const std::string &words) {
     _words.clear();
 
     _words.reserve(BIP39_WORDLIST_COUNT);
@@ -38,12 +38,12 @@ void Mnemonic::setLanguage(const std::string &language) {
             _words.push_back(str);
         }
     } else {
-        char fileName[512];
-        strcpy(fileName, _i18nPath);
-        strcat(fileName, MNEMONIC_PREFIX);
-        strcat(fileName, language.c_str());
-        strcat(fileName, MNEMONIC_EXTENSION);
-        loadLanguage(fileName);
+        // char fileName[512];
+        // strcpy(fileName, _i18nPath);
+        // strcat(fileName, MNEMONIC_PREFIX);
+        // strcat(fileName, language.c_str());
+        // strcat(fileName, MNEMONIC_EXTENSION);
+        loadLanguage(words);
     }
 
     // ParamChecker::checkLangWordsCnt(_words.size());
@@ -53,12 +53,26 @@ std::string Mnemonic::getLanguage() const {
     return _language;
 }
 
-void Mnemonic::loadLanguage(const std::string &path) {
+void Mnemonic::loadLanguage(const std::string &words) {
+    // std::fstream infile(path);
+    // std::string line;
+    // while (std::getline(infile, line)) {
+    //     _words.push_back(line);
+    // }
 
-    std::fstream infile(path);
-    std::string line;
-    while (std::getline(infile, line)) {
-        _words.push_back(line);
+    std::string str = words;
+    std::string pattern = "\n";
+    std::string::size_type pos;
+    str += pattern;
+    int size = str.size();
+
+    for (int i = 0; i < size; i++) {
+        pos = str.find("\n", i);
+        if (pos < size) {
+            std::string s = str.substr(i, pos - i);
+            _words.push_back(s);
+            i = pos;
+        }
     }
 }
 

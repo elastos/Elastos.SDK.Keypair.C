@@ -123,29 +123,29 @@ char* getAddress(const char* publicKey)
     return getResultStrEx(address.c_str(), address.length());
 }
 
-char* generateMnemonic(const char* language, const char* path)
+char* generateMnemonic(const char* language, const char* words)
 {
-    if (!language || !path) {
+    if (!language || !words) {
         return nullptr;
     }
 
     CMemBlock<uint8_t> seed128 = WalletTool::GenerateSeed128();
-    Mnemonic mnemonic(language, path);
+    Mnemonic mnemonic(language, words);
     CMemBlock<char> phrase = WalletTool::GeneratePhraseFromSeed(seed128, mnemonic.words());
 
     return getResultStrEx(phrase, phrase.GetSize());
 }
 
-int getSeedFromMnemonic(void** seed, const char* mmemonic, const char* language, const char* path, const char* mnemonicPassword)
+int getSeedFromMnemonic(void** seed, const char* mmemonic, const char* language, const char* words, const char* mnemonicPassword)
 {
-    if (!seed || !mmemonic || !language || !path) {
+    if (!seed || !mmemonic || !language || !words) {
         return 0;
     }
 
     CMemBlock<char> phraseData;
     phraseData.SetMemFixed(mmemonic, strlen(mmemonic) + 1);
 
-    Mnemonic* pMnemonic = new Mnemonic(language, path);
+    Mnemonic* pMnemonic = new Mnemonic(language, words);
     if (!pMnemonic || !WalletTool::PhraseIsValid(phraseData, pMnemonic->words())) {
         return 0;
     }

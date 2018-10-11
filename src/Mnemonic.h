@@ -13,17 +13,17 @@ class Mnemonic {
 public:
     explicit Mnemonic(const std::string &language = "english");
 
-    Mnemonic(const std::string &language, const std::string &path);
+    Mnemonic(const std::string &language, const std::string &words);
 
     const std::vector<std::string> &words() const;
 
-    void setLanguage(const std::string &language);
+    void setLanguage(const std::string &language, const std::string &words);
     std::string getLanguage() const;
 
     void setI18nPath(const std::string &path);
 
 private:
-    void loadLanguage(const std::string &path);
+    void loadLanguage(const std::string &words);
 
 private:
     std::string _language;

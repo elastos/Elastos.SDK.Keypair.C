@@ -2,15 +2,49 @@
 #include "../src/Elastos.Wallet.Utility.h"
 
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+
+char* readMnemonicFile(const char* path)
+{
+    FILE* file = fopen(path, "r");
+    if (!file) {
+        return nullptr;
+    }
+    char* buf = (char*)malloc(1024 * 10);
+    if (!buf) {
+        fclose(file);
+        return nullptr;
+    }
+    int count = 0;
+    char c;
+
+    while ( (c = fgetc(file)) != EOF) {
+        buf[count++] = c;
+    }
+
+    buf[count] = '\0';
+    fclose(file);
+
+    return buf;
+}
 
 void TestGenrateMnemonic()
 {
     printf("============= start TestGenrateMnemonic ===========\n");
-    char* mnemonic = generateMnemonic("chinese", "/home/zuo/work/Elastos.ORG.Wallet.Utility/src/Data/");
+
+    const char* path = "/home/zuo/work/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
+    char* words = readMnemonicFile(path);
+    if (!words) {
+        printf("read file failed\n");
+        printf("============= end TestGenrateMnemonic ===========\n\n");
+    }
+
+    char* mnemonic = generateMnemonic("chinese", words);
     printf("mnemonic: %s\n", mnemonic);
 
     void* seed;
-    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "chinese", "/home/zuo/work/Elastos.ORG.Wallet.Utility/src/Data/", "");
+    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "chinese", words, "");
     char* privateKey = getSinglePrivateKey(seed, seedLen);
     char* publicKey = getSinglePublicKey(seed, seedLen);
 
@@ -44,6 +78,7 @@ void TestGenrateMnemonic()
     free(publicKey);
     free(address);
     free(seed);
+    free(words);
 
     printf("============= end TestGenrateMnemonic ===========\n\n");
 }
@@ -52,9 +87,16 @@ void TestHDWalletAddress()
 {
     printf("============= start TestHDWalletAddress ===========\n");
 
+    const char* path = "/home/zuo/work/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
+    char* words = readMnemonicFile(path);
+    if (!words) {
+        printf("read file failed\n");
+        printf("============= end TestGenrateMnemonic ===========\n\n");
+    }
+
     const char* mnemonic = "督 辉 稿 谋 速 壁 阿 耗 瓷 仓 归 说";
     void* seed;
-    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "chinese", "/home/zuo/work/Elastos.ORG.Wallet.Utility/src/Data/", "");
+    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "chinese", words, "");
     printf("=========== seed length: %d\n", seedLen);
 
     char* privateKey = getSinglePrivateKey(seed, seedLen);
@@ -68,6 +110,7 @@ void TestHDWalletAddress()
     free(privateKey);
     free(publicKey);
     free(address);
+    free(words);
 
 
     MasterPublicKey* masterPublicKey = getMasterPublicKey(seed, seedLen, COIN_TYPE_ELA);

@@ -12,7 +12,7 @@ extern "C" {
 #define EXTERNAL_CHAIN     0
 #define INTERNAL_CHAIN     1
 
-#define COIN_TYPE_ELA      2305
+#define COIN_TYPE_ELA      0
 
 typedef struct
 {
@@ -29,9 +29,9 @@ MasterPublicKey* getMasterPublicKey(const void* seed, int seedLen, int coinType)
 
 char* getAddress(const char* publicKey);
 
-char* generateMnemonic(const char* language, const char* path);
+char* generateMnemonic(const char* language, const char* words);
 
-int getSeedFromMnemonic(void** seed, const char* mnemonic, const char* language, const char* path, const char* mnemonicPassword);
+int getSeedFromMnemonic(void** seed, const char* mnemonic, const char* language, const char* words, const char* mnemonicPassword);
 
 int sign(const char* privateKey, const void* data, int len, void** signedData);
 
