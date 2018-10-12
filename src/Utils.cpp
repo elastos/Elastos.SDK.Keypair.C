@@ -304,7 +304,7 @@ CMBlock Utils::decodeHex(const std::string &s) {
     return ret;
 }
 
-CMBlock Utils::getCode(const CMBlock& publicKey)
+CMBlock Utils::getCode(const CMBlock& publicKey, int signType)
 {
     uint64_t size = 33;
 
@@ -314,7 +314,7 @@ CMBlock Utils::getCode(const CMBlock& publicKey)
 
     buff.putBytes((const uint8_t*)publicKey, size);
 
-    buff.put((uint8_t) 0xAC);
+    buff.put((uint8_t) signType);
 
     return buff.getBuffer();
 }

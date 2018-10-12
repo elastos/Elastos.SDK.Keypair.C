@@ -52,6 +52,9 @@ int BRKeySetSecret(BRKey *key, const UInt256 *secret, int compressed);
 // wipes key material from key
 void BRKeyClean(BRKey *key);
 
+// assigns DER encoded pubKey to key and returns true on success
+int BRKeySetPubKey(BRKey *key, const uint8_t *pubKey, size_t pkLen);
+
 // writes the DER encoded public key to pubKey and returns number of bytes written, or pkLen needed if pubKey is NULL
 size_t BRKeyPubKey(BRKey *key, void *pubKey, size_t pkLen);
 

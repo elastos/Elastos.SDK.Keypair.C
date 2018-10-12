@@ -45,6 +45,15 @@ char* generateSubPublicKey(const MasterPublicKey* masterPublicKey, int chain, in
 
 void freeBuf(void* buf);
 
+// Apis for DID
+MasterPublicKey* getIdChainMasterPublicKey(const void* seed, int seedLen);
+
+char* generateIdChainSubPrivateKey(const void* seed, int seedLen, int purpose, int index);
+
+char* generateIdChainSubPublicKey(const MasterPublicKey* masterPublicKey, int purpose, int index);
+
+char* getDid(const char* publicKey);
+
 #ifdef __cplusplus
 }
 #endif

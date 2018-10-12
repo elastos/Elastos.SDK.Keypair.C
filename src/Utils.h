@@ -93,7 +93,7 @@ public:
 
     static UInt168 codeToProgramHash(const CMBlock &redeemScript);
 
-    static CMBlock getCode(const CMBlock& publicKey);
+    static CMBlock getCode(const CMBlock& publicKey, int signType = 0xAC);
 };
 
 #endif //__SDK_UTILS_H__

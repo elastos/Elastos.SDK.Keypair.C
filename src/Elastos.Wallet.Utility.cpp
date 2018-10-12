@@ -41,6 +41,62 @@ static char* getPublickeyFromPrivateKey(const BRKey& key)
     return getResultStr(result);
 }
 
+static char* getAddressEx(const char* publicKey, int signType)
+{
+    if (!publicKey) {
+        return nullptr;
+    }
+
+    CMemBlock<char> cPublickey;
+    cPublickey.SetMemFixed(publicKey, strlen(publicKey) + 1);
+    CMBlock pubKey = Str2Hex(cPublickey);
+
+    CMBlock code = Utils::getCode(pubKey, signType);
+
+    std::string redeedScript = Utils::encodeHex(code, code.GetSize());
+
+    UInt168 hash = Utils::codeToProgramHash(redeedScript);
+
+    std::string address = Utils::UInt168ToAddress(hash);
+
+    return getResultStrEx(address.c_str(), address.length());
+}
+
+static MasterPublicKey* getMasterPublicKey(BRKey& key, const UInt256& chainCode)
+{
+    CMBlock privKey(sizeof(UInt256));
+    privKey.SetMemFixed((uint8_t*)&key.secret, sizeof(key.secret));
+    CMBlock publicKey;
+    publicKey.Resize(33);
+    getPubKeyFromPrivKey(publicKey, (UInt256 *) (uint8_t *) privKey);
+
+
+    MasterPublicKey* masterKey = new MasterPublicKey();
+    if (!masterKey) {
+        return nullptr;
+    }
+
+    masterKey->fingerPrint = BRKeyHash160(&key).u32[0];
+    memcpy(masterKey->chainCode, (uint8_t*)&chainCode, sizeof(chainCode));
+    memcpy(masterKey->publicKey, (void *)publicKey, publicKey.GetSize());
+
+    return masterKey;
+}
+
+static BRMasterPubKey* toBRMasterPubKey(const MasterPublicKey* pubKey)
+{
+    BRMasterPubKey* brPublicKey = new BRMasterPubKey();
+    if (!brPublicKey) {
+        return nullptr;
+    }
+
+    brPublicKey->fingerPrint = pubKey->fingerPrint;
+    memcpy((uint8_t*)&brPublicKey->chainCode, pubKey->chainCode, sizeof(brPublicKey->chainCode));
+    memcpy(brPublicKey->pubKey, pubKey->publicKey, sizeof(brPublicKey->pubKey));
+
+    return brPublicKey;
+}
+
 char* getSinglePrivateKey(const void* seed, int seedLen)
 {
     if (!seed || seedLen <= 0) {
@@ -79,23 +135,7 @@ MasterPublicKey* getMasterPublicKey(const void* seed, int seedLen, int coinType)
     BRBIP32PrivKeyPath(&key, &chainCode, seed, seedLen, 3, 44 | BIP32_HARD,
                        coinType | BIP32_HARD, 0 | BIP32_HARD);
 
-    CMBlock privKey(sizeof(UInt256));
-    privKey.SetMemFixed((uint8_t*)&key.secret, sizeof(key.secret));
-    CMBlock publicKey;
-    publicKey.Resize(33);
-    getPubKeyFromPrivKey(publicKey, (UInt256 *) (uint8_t *) privKey);
-
-
-    MasterPublicKey* masterKey = new MasterPublicKey();
-    if (!masterKey) {
-        var_clean(&chainCode);
-        return nullptr;
-    }
-
-    masterKey->fingerPrint = BRKeyHash160(&key).u32[0];
-    printf("=== chainCode size:%d\n", (int)sizeof(chainCode));
-    memcpy(masterKey->chainCode, (uint8_t*)&chainCode, sizeof(chainCode));
-    memcpy(masterKey->publicKey, (void *)publicKey, publicKey.GetSize());
+    MasterPublicKey* masterKey = getMasterPublicKey(key, chainCode);
 
     var_clean(&chainCode);
 
@@ -104,23 +144,7 @@ MasterPublicKey* getMasterPublicKey(const void* seed, int seedLen, int coinType)
 
 char* getAddress(const char* publicKey)
 {
-    if (!publicKey) {
-        return nullptr;
-    }
-
-    CMemBlock<char> cPublickey;
-    cPublickey.SetMemFixed(publicKey, strlen(publicKey) + 1);
-    CMBlock pubKey = Str2Hex(cPublickey);
-
-    CMBlock code = Utils::getCode(pubKey);
-
-    std::string redeedScript = Utils::encodeHex(code, code.GetSize());
-
-    UInt168 hash = Utils::codeToProgramHash(redeedScript);
-
-    std::string address = Utils::UInt168ToAddress(hash);
-
-    return getResultStrEx(address.c_str(), address.length());
+    return getAddressEx(publicKey, 0xAC);
 }
 
 char* generateMnemonic(const char* language, const char* words)
@@ -248,14 +272,10 @@ char* generateSubPublicKey(const MasterPublicKey* masterPublicKey, int chain, in
         return nullptr;
     }
 
-    BRMasterPubKey* brPublicKey = new BRMasterPubKey();
+    BRMasterPubKey* brPublicKey = toBRMasterPubKey(masterPublicKey);
     if (!brPublicKey) {
         return nullptr;
     }
-
-    brPublicKey->fingerPrint = masterPublicKey->fingerPrint;
-    memcpy((uint8_t*)&brPublicKey->chainCode, masterPublicKey->chainCode, sizeof(brPublicKey->chainCode));
-    memcpy(brPublicKey->pubKey, masterPublicKey->publicKey, sizeof(brPublicKey->pubKey));
 
     size_t len = BRBIP32PubKey(NULL, 0, *brPublicKey, chain, index);
     CMBlock subPubKey(len);
@@ -271,4 +291,67 @@ void freeBuf(void* buf)
     if (!buf) return;
 
     free(buf);
+}
+
+MasterPublicKey* getIdChainMasterPublicKey(const void* seed, int seedLen)
+{
+    if (!seed || seedLen <= 0) {
+        return nullptr;
+    }
+
+    BRKey idMasterKey;
+    UInt256 idChainCode;
+    BRBIP32PrivKeyPath(&idMasterKey, &idChainCode, &seed, sizeof(seed), 1, 0 | BIP32_HARD);
+
+    MasterPublicKey* masterKey = getMasterPublicKey(idMasterKey, idChainCode);
+
+    var_clean(&idChainCode);
+
+    return masterKey;
+}
+
+char* generateIdChainSubPrivateKey(const void* seed, int seedLen, int purpose, int index)
+{
+    if (!seed || seedLen <= 0) {
+        return nullptr;
+    }
+
+    BRKey key;
+    UInt256 chainCode;
+    BRBIP32PrivKeyPath(&key, &chainCode, seed, seedLen, 3, 0 | BIP32_HARD, purpose, index);
+
+    var_clean(&chainCode);
+
+    std::string keyStr = Utils::UInt256ToString(key.secret);
+
+    return getResultStrEx(keyStr.c_str(), keyStr.length());
+}
+
+char* generateIdChainSubPublicKey(const MasterPublicKey* masterPublicKey, int purpose, int index)
+{
+    if (!masterPublicKey) {
+        return nullptr;
+    }
+
+    BRMasterPubKey* brPublicKey = toBRMasterPubKey(masterPublicKey);
+    if (!brPublicKey) {
+        return nullptr;
+    }
+
+    uint8_t pubKey[BRBIP32PubKey(NULL, 0, *brPublicKey, purpose, index)];
+    size_t len = BRBIP32PubKey(pubKey, sizeof(pubKey), *brPublicKey, purpose, index);
+
+    delete brPublicKey;
+
+    BRKey rawKey;
+    BRKeySetPubKey(&rawKey, pubKey, len);
+    CMBlock cbPubKey;
+    cbPubKey.SetMemFixed(rawKey.pubKey, len);
+
+    return getResultStr(cbPubKey);
+}
+
+char* getDid(const char* publicKey)
+{
+    return getAddressEx(publicKey, 0xAD);
 }

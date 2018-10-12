@@ -80,6 +80,22 @@ void BRKeyClean(BRKey *key)
     var_clean(key);
 }
 
+// assigns DER encoded pubKey to key and returns true on success
+int BRKeySetPubKey(BRKey *key, const uint8_t *pubKey, size_t pkLen)
+{
+    secp256k1_pubkey pk;
+
+    assert(key != NULL);
+    assert(pubKey != NULL);
+    assert(pkLen == 33 || pkLen == 65);
+
+    pthread_once(&_ctx_once, _ctx_init);
+    BRKeyClean(key);
+    memcpy(key->pubKey, pubKey, pkLen);
+    key->compressed = (pkLen <= 33);
+    return secp256k1_ec_pubkey_parse(_ctx, &pk, key->pubKey, pkLen);
+}
+
 // writes the DER encoded public key to pubKey and returns number of bytes written, or pkLen needed if pubKey is NULL
 size_t BRKeyPubKey(BRKey *key, void *pubKey, size_t pkLen)
 {

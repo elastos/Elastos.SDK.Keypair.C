@@ -91,7 +91,7 @@ void TestHDWalletAddress()
     char* words = readMnemonicFile(path);
     if (!words) {
         printf("read file failed\n");
-        printf("============= end TestGenrateMnemonic ===========\n\n");
+        printf("============= end TestHDWalletAddress ===========\n\n");
     }
 
     const char* mnemonic = "督 辉 稿 谋 速 壁 阿 耗 瓷 仓 归 说";
@@ -114,7 +114,7 @@ void TestHDWalletAddress()
 
 
     MasterPublicKey* masterPublicKey = getMasterPublicKey(seed, seedLen, COIN_TYPE_ELA);
-    int count = 100;
+    int count = 10;
     char* privateKeys[count];
     char* publicKeys[count];
     char* addresses[count];
@@ -138,6 +138,49 @@ void TestHDWalletAddress()
     printf("============= end TestHDWalletAddress ===========\n");
 }
 
+void TestDid()
+{
+    printf("============= start TestDid ===========\n");
+
+    const char* path = "/home/zuo/work/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
+    char* words = readMnemonicFile(path);
+    if (!words) {
+        printf("read file failed\n");
+        printf("============= end TestDid ===========\n\n");
+    }
+
+    const char* mnemonic = "督 辉 稿 谋 速 壁 阿 耗 瓷 仓 归 说";
+    void* seed;
+    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "chinese", words, "");
+    printf("=========== seed length: %d\n", seedLen);
+    free(words);
+
+
+    MasterPublicKey* masterPublicKey = getIdChainMasterPublicKey(seed, seedLen);
+    int count = 10;
+    char* privateKeys[count];
+    char* publicKeys[count];
+    char* addresses[count];
+    for (int i = 0; i < count; i++) {
+        privateKeys[i] = generateIdChainSubPrivateKey(seed, seedLen, 0, i);
+        publicKeys[i] = generateIdChainSubPublicKey(masterPublicKey, 0, i);
+        addresses[i] = getDid(publicKeys[i]);
+
+        printf("private key %d: %s\n", i, privateKeys[i]);
+        printf("public key %d: %s\n", i, publicKeys[i]);
+        printf("DID %d: %s\n\n", i, addresses[i]);
+    }
+
+    for (int i = 0; i < count; i++) {
+        free(privateKeys[i]);
+        free(publicKeys[i]);
+        free(addresses[i]);
+    }
+    delete masterPublicKey;
+
+    printf("============= end TestDid ===========\n");
+}
+
 void signTxData(const char* data)
 {
     printf("============= start signTxData ===========\n");
@@ -152,6 +195,7 @@ void signTxData(const char* data)
 const char *c_help = \
     "genmne    test generate mnemonic, get private key, public key, address.\n" \
     "hd        test generate hd wallet address.\n" \
+    "did       test generate did.\n"
     "sign      test generate raw transaction.\n" \
     "help      show help message.\n" \
     "exit      exit the test program.\n" \
@@ -169,6 +213,9 @@ int main(int argc, char *argv[])
         }
         else if (!command.compare("hd")) {
             TestHDWalletAddress();
+        }
+        else if (!command.compare("did")) {
+            TestDid();
         }
         else if (!command.compare("sign")) {
             std::string json;
