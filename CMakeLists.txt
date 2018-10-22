@@ -54,7 +54,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/include
   ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1)
 
-add_subdirectory(thirdParty)
+add_subdirectory(thirdparty)
 add_subdirectory(src)
 
 
