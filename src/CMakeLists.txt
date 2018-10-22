@@ -31,17 +31,20 @@ if("$ENV{TARGET_PLATFORM}" STREQUAL "android")
     target_link_libraries(Elastos.Wallet.Utility
         ssl
         crypto
+        bigint
     )
 elseif("$ENV{TARGET_PLATFORM}" STREQUAL "ios")
     target_link_libraries(Elastos.Wallet.Utility
         ssl
         crypto
         pthread
+        bigint
     )
 elseif("$ENV{TARGET_PLATFORM}" STREQUAL "linux")
     target_link_libraries(Elastos.Wallet.Utility
         ssl
         crypto
         pthread
+        bigint
     )
 endif()

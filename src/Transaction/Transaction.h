@@ -9,6 +9,7 @@
 #include "../BRInt.h"
 #include "../ByteStream.h"
 #include <vector>
+#include "nlohmann/json.hpp"
 
 #define TX_LOCKTIME          0x00000000
 
@@ -39,12 +40,20 @@ public:
 
     void Serialize(ByteStream &ostream);
 
-    void Sign(const CMBlock & privteKey);
+    void Sign(const CMBlock& privateKey);
+
+    void MultiSign(const CMBlock& privateKey, const CMBlock& redeemScript);
 
     std::vector<CMBlock> GetPrivateKeys();
 
+    void FromJson(const nlohmann::json &jsonData);
+
+    nlohmann::json ToJson();
+
 private:
     void SerializeUnsigned(ByteStream &ostream) const;
+
+    CMBlock SignData(const CMBlock& privateKey);
 
 private:
     Type mType;

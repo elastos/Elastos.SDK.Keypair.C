@@ -49,10 +49,12 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 include_directories(
   thirdparty
   thirdparty/openssl
+  thirdparty/bigint-2010.04.30
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/include
   ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1)
 
+add_subdirectory(thirdParty)
 add_subdirectory(src)
 
 

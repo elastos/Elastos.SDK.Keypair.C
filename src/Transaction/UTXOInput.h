@@ -6,12 +6,17 @@
 #include "../BRInt.h"
 #include "../ByteStream.h"
 #include "../Utils.h"
-#include "../BigIntFormat.h"
 #include <string>
+#include "nlohmann/json.hpp"
 
 class UTXOInput
 {
 public:
+    UTXOInput()
+        : mReferTxOutputIndex(0)
+        , mSequence(0)
+    {}
+
     UTXOInput(const std::string& txid, uint32_t index,
         const std::string& privateKey, const std::string& address)
         : mReferTxOutputIndex(index)
@@ -19,13 +24,15 @@ public:
         , mSequence(0)
     {
         mReferTxid = Utils::UInt256FromString(txid, true);
-        CMemBlock<char> cPrivatekey;
-        cPrivatekey.SetMemFixed(privateKey.c_str(), privateKey.size() + 1);
-        mPrivateKey = Str2Hex(cPrivatekey);
+        mPrivateKey = Utils::decodeHex(privateKey);
         Utils::UInt168FromAddress(mProgramHash, address);
     }
 
     void Serialize(ByteStream& ostream);
+
+    void FromJson(const nlohmann::json &jsonData);
+
+    nlohmann::json ToJson();
 
 public:
     //Indicate the previous Tx which include the UTXO output for usage

@@ -318,3 +318,12 @@ CMBlock Utils::getCode(const CMBlock& publicKey, int signType)
 
     return buff.getBuffer();
 }
+
+void Utils::printBinary(unsigned char* data, int len)
+{
+    for (int i = 0; i < len; i++) {
+        unsigned char c = data[i];
+        printf("%d ", c);
+    }
+    printf("\n");
+}

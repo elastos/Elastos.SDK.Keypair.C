@@ -5,29 +5,41 @@
 #include "../Utils.h"
 #include "../CMemBlock.h"
 #include "../ByteStream.h"
-#include "../BigIntFormat.h"
+#include "nlohmann/json.hpp"
 
 class Attribute
 {
 public:
+    enum Usage {
+        Nonce = 0x00,
+        Script = 0x20,
+        DescriptionUrl = 0x81,
+        Description = 0x90,
+        Memo = 0x91,
+        Confirmations = 0x92
+    };
+
+public:
     Attribute(std::string memo)
     {
         if (memo.empty()) {
-             mUsage = 0;
+            mUsage = Usage::Nonce;
             mData = Utils::convertToMemBlock(std::to_string(std::rand()));
         }
         else {
-            mUsage = 0x81;
-            CMemBlock<char> cMemo;
-            cMemo.SetMemFixed(memo.c_str(), memo.size() + 1);
-            mData = Str2Hex(cMemo);
+            mUsage = Usage::Memo;
+            mData = Utils::decodeHex(memo);
         }
     }
 
     void Serialize(ByteStream& ostream);
 
+    void FromJson(const nlohmann::json &jsonData);
+
+    nlohmann::json ToJson();
+
 public:
-    uint8_t mUsage;
+    Usage mUsage;
     CMBlock mData;
 };
 

@@ -5,61 +5,53 @@
 #include "Transaction/UTXOInput.h"
 #include "Transaction/TxOutput.h"
 #include "ElaController.h"
+#include "BRAddress.h"
+#include "secp256k1.h"
+#include "BigIntegerLibrary.hh"
+#include "BRKey.h"
 
-using json = nlohmann::json;
-
-
-std::string ElaController::genRawTransaction(std::string jsonStr)
-{
-    json txJson = json::parse(jsonStr);
-    std::vector<json> transactions = txJson["Transactions"];
-
-    json jTransaction = transactions[0];
-    std::vector<json> jUtxoInputs = jTransaction["UTXOInputs"];
-
-    std::vector<UTXOInput*> utxoInputs;
-    for (json utxoInput : jUtxoInputs) {
-        std::string txid = utxoInput["txid"].get<std::string>();
-        uint32_t index = utxoInput["index"].get<uint32_t>();
-        std::string privateKey = utxoInput["privateKey"].get<std::string>();
-        std::string address = utxoInput["address"].get<std::string>();
-
-        UTXOInput* input = new UTXOInput(txid, index, privateKey, address);
-        if (input) {
-            utxoInputs.push_back(input);
-        }
-    }
-
-    std::vector<json> jTxOuputs = jTransaction["Outputs"];
-    std::vector<TxOutput*> outputs;
-    for(json txOutput : jTxOuputs) {
-        std::string address = txOutput["address"].get<std::string>();
-        uint64_t amount = txOutput["amount"].get<uint64_t>();
-
-        TxOutput* output = new TxOutput(address, amount);
-        if (output) {
-            outputs.push_back(output);
-        }
-    }
-
-    std::string memo;
-    if (!jTransaction["Memo"].is_null()) {
-        memo = jTransaction["Memo"].get<std::string>();
-    }
-    Transaction* transaction = new Transaction(utxoInputs, outputs, memo);
-    if (!transaction)
+struct {
+    bool operator()(const std::string &a, const std::string &b) const
     {
+        secp256k1_pubkey pk;
 
-        for (UTXOInput* input : utxoInputs) {
-            delete input;
+        CMBlock cbA = Utils::decodeHex(a);
+        if (0 == BRKeyPubKeyDecode(&pk, cbA, cbA.GetSize())) {
+            printf("Public key: %s decode error\n", a.c_str());
         }
-        utxoInputs.clear();
+        BigInteger bigIntA = dataToBigInteger(pk.data, sizeof(pk.data) / 2, BigInteger::Sign::positive);
 
-        for (TxOutput* output : outputs) {
-            delete output;
+        CMBlock cbB = Utils::decodeHex(b);
+        if (0 == BRKeyPubKeyDecode(&pk, cbB, cbB.GetSize())) {
+            printf("Public key: %s decode error\n", b.c_str());
         }
-        outputs.clear();
+        BigInteger bigIntB = dataToBigInteger(pk.data, sizeof(pk.data) / 2, BigInteger::Sign::positive);
 
+        return bigIntA <= bigIntB;
+    }
+} CustomCompare;
+
+Transaction* ElaController::GenTransactionFromJson(const std::string json)
+{
+    nlohmann::json txJson = nlohmann::json::parse(json);
+    std::vector<nlohmann::json> transactions = txJson["Transactions"];
+
+    nlohmann::json jTransaction = transactions[0];
+
+    Transaction* transaction = new Transaction();
+    if (!transaction) {
+        return nullptr;
+    }
+
+    transaction->FromJson(jTransaction);
+
+    return transaction;
+}
+
+std::string ElaController::genRawTransaction(const std::string jsonStr)
+{
+    Transaction* transaction = GenTransactionFromJson(jsonStr);
+    if (!transaction) {
         return nullptr;
     }
 
@@ -74,3 +66,60 @@ std::string ElaController::genRawTransaction(std::string jsonStr)
 
     return Utils::encodeHex(ostream.getBuffer());
 }
+
+CMBlock ElaController::GenerateRedeemScript(std::vector<std::string> publicKeys, int requiredSignCount)
+{
+    std::vector<std::string> sortedSigners(publicKeys.begin(), publicKeys.end());
+    std::sort(sortedSigners.begin(), sortedSigners.end(), CustomCompare);
+
+    ByteStream stream;
+    stream.writeUint8(uint8_t(OP_1 + requiredSignCount - 1));
+    for (size_t i = 0; i < sortedSigners.size(); i++) {
+        CMBlock pubKey = Utils::decodeHex(sortedSigners[i]);
+        stream.writeUint8(uint8_t(pubKey.GetSize()));
+        stream.writeBytes(pubKey, pubKey.GetSize());
+    }
+
+    stream.writeUint8(uint8_t(OP_1 + sortedSigners.size() - 1));
+    stream.writeUint8(ELA_MULTISIG);
+
+    return stream.getBuffer();
+}
+
+std::string ElaController::SerializeTransaction(const std::string json)
+{
+    Transaction* transaction = GenTransactionFromJson(json);
+    if (!transaction) {
+        return nullptr;
+    }
+
+    ByteStream ostream;
+    transaction->Serialize(ostream);
+    delete transaction;
+
+    return Utils::encodeHex(ostream.getBuffer());
+}
+
+std::string ElaController::MultiSignTransaction(const std::string privateKey,
+        int requiredSignCount, std::vector<std::string> publicKeys, const std::string json)
+{
+    Transaction* transaction = GenTransactionFromJson(json);
+    if (!transaction) {
+        return nullptr;
+    }
+
+    CMBlock redeemScript = GenerateRedeemScript(publicKeys, requiredSignCount);
+    CMBlock cbPrivateKey = Utils::decodeHex(privateKey);
+    transaction->MultiSign(cbPrivateKey, redeemScript);
+
+    nlohmann::json transactionJson = transaction->ToJson();
+    delete transaction;
+
+    nlohmann::json jsonData;
+    std::vector<nlohmann::json> transactions;
+    transactions.push_back(transactionJson);
+    jsonData["Transactions"] = transactions;
+
+    return jsonData.dump();
+}
+

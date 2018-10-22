@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include "nlohmann/json.hpp"
 
 char* readMnemonicFile(const char* path)
 {
@@ -33,7 +34,7 @@ void TestGenrateMnemonic()
 {
     printf("============= start TestGenrateMnemonic ===========\n");
 
-    const char* path = "/home/zuo/work/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
+    const char* path = "/home/hostuser/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
     char* words = readMnemonicFile(path);
     if (!words) {
         printf("read file failed\n");
@@ -87,11 +88,12 @@ void TestHDWalletAddress()
 {
     printf("============= start TestHDWalletAddress ===========\n");
 
-    const char* path = "/home/zuo/work/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
+    const char* path = "/home/hostuser/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
     char* words = readMnemonicFile(path);
     if (!words) {
         printf("read file failed\n");
         printf("============= end TestHDWalletAddress ===========\n\n");
+        return;
     }
 
     const char* mnemonic = "督 辉 稿 谋 速 壁 阿 耗 瓷 仓 归 说";
@@ -142,11 +144,12 @@ void TestDid()
 {
     printf("============= start TestDid ===========\n");
 
-    const char* path = "/home/zuo/work/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
+    const char* path = "/home/hostuser/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
     char* words = readMnemonicFile(path);
     if (!words) {
         printf("read file failed\n");
         printf("============= end TestDid ===========\n\n");
+        return;
     }
 
     const char* mnemonic = "督 辉 稿 谋 速 壁 阿 耗 瓷 仓 归 说";
@@ -184,7 +187,12 @@ void TestDid()
 void signTxData(const char* data)
 {
     printf("============= start signTxData ===========\n");
-    printf("data: %s\n\n", data);
+    // const char* transaction = "{\"Transactions\":[{\"UTXOInputs\":[{\
+    //                 \"txid\":\"f176d04e5980828770acadcfc3e2d471885ab7358cd7d03f4f61a9cd0c593d54\",\
+    //                 \"privateKey\":\"b6f010250b6430b2dd0650c42f243d5445f2044a9c2b6975150d8b0608c33bae\",\
+    //                 \"index\":0,\"address\":\"EeniFrrhuFgQXRrQXsiM1V4Amdsk4vfkVc\"}],\
+    //                 \"Outputs\":[{\"address\":\"EbxU18T3M9ufnrkRY7NLt6sKyckDW4VAsA\",\
+    //                 \"amount\":2000000}]}]}";
     char* signedData = generateRawTransaction(data);
     printf("signedData: %s\n", signedData);
 
@@ -192,11 +200,51 @@ void signTxData(const char* data)
     printf("============= end signTxData ===========\n\n");
 }
 
+void cosignTxData()
+{
+    printf("============= start cosignTxData ===========\n");
+
+    const char* data = "{\"Transactions\":[{\"UTXOInputs\":[{\
+                    \"txid\":\"c20d577997a6036683e1a88925eaa4c2e4ca2f34db95a3fe85ad3787da017bec\",\
+                    \"index\":0,\"address\":\"8NJ7dbKsG2NRiBqdhY6LyKMiWp166cFBiG\"}],\
+                    \"Outputs\":[{\"address\":\"EbxU18T3M9ufnrkRY7NLt6sKyckDW4VAsA\",\
+                    \"amount\":2000000}]}]}";
+
+    char* publicKeys[3] = {
+        "02bc11aa5c35acda6f6f219b94742dd9a93c1d11c579f98f7e3da05ad910a48306",
+        "031a9d45859da69dbc444723048932b8f56bb9937c5260238b4821a3b1ccfd78b6",
+        "02746aa551414e16921a3249ddd5e49923299c97102c7e7c5b9c6e81dd3949556d"
+    };
+
+    const char* private1 = "543c241f89bebb660157bcd12d7ab67cf69f3158240a808b22eb98447bad205d";
+    const char* private2 = "fe7bb62ad9bed0a572bd9428574eba8d038b68ea3004d37eb7bcf3f297a2c48f";
+    const char* private3 = "404a282fec850e7b880ad65f40ffd0bdddc50d8cf3217ca65d30f5378d377991";
+
+    char* address = getMultiSignAddress(publicKeys, 3, 2);
+    printf("cosign address: %s\n", address);
+    free(address);
+
+    char* signedData1 = multiSignTransaction(private2, publicKeys, 3, 2, data);
+    printf("signed data1: %s\n", signedData1);
+    char* signedData2 = multiSignTransaction(private3, publicKeys, 3, 2, signedData1);
+    printf("signed data2: %s\n", signedData2);
+
+    char* serialize = serializeMultiSignTransaction(signedData2);
+    printf("serialize data: %s\n", serialize);
+
+    free(signedData1);
+    free(signedData2);
+    free(serialize);
+
+    printf("============= end cosignTxData ===========\n\n");
+}
+
 const char *c_help = \
     "genmne    test generate mnemonic, get private key, public key, address.\n" \
     "hd        test generate hd wallet address.\n" \
     "did       test generate did.\n"
     "sign      test generate raw transaction.\n" \
+    "cosign    test cosign raw transaction.\n" \
     "help      show help message.\n" \
     "exit      exit the test program.\n" \
     "\n";
@@ -223,11 +271,17 @@ int main(int argc, char *argv[])
             std::getline(std::cin, json);
             signTxData(json.c_str());
         }
+        else if (!command.compare("cosign")) {
+            cosignTxData();
+        }
         else if (!command.compare("help")) {
             std::cout << c_help;
         }
         else if (!command.compare("exit")) {
             break;
+        }
+        else if (command.length() != 0){
+            std::cout << "not support command\n";
         }
     }
 

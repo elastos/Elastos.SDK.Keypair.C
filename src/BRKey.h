@@ -28,6 +28,7 @@
 #include "BRInt.h"
 #include <stddef.h>
 #include <inttypes.h>
+#include <secp256k1.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,7 +62,7 @@ size_t BRKeyPubKey(BRKey *key, void *pubKey, size_t pkLen);
 // returns the ripemd160 hash of the sha256 hash of the public key, or UINT160_ZERO on error
 UInt160 BRKeyHash160(BRKey *key);
 
-
+int BRKeyPubKeyDecode(secp256k1_pubkey *pk, const uint8_t *input, size_t inputlen);
 
 #ifdef __cplusplus
 }

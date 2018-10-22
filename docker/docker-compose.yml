@@ -1,0 +1,14 @@
+
+version: "2"
+services:
+  build-env:
+    build: .
+    volumes:
+      - ..:/home/hostuser/Elastos.ORG.Wallet.Lib.C
+      - ${ANDROID_NDK}:/home/hostuser/android-ndk
+    tmpfs:
+      - /tmp
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined

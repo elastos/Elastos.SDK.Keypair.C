@@ -94,6 +94,8 @@ public:
     static UInt168 codeToProgramHash(const CMBlock &redeemScript);
 
     static CMBlock getCode(const CMBlock& publicKey, int signType = 0xAC);
+
+    static void printBinary(unsigned char* data, int len);
 };
 
 #endif //__SDK_UTILS_H__

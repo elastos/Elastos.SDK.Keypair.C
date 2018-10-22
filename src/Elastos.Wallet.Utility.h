@@ -45,6 +45,10 @@ char* generateSubPublicKey(const MasterPublicKey* masterPublicKey, int chain, in
 
 void freeBuf(void* buf);
 
+char* getPublicKeyFromPrivateKey(const char* privateKey);
+
+bool isAddressValid(const char* address);
+
 // Apis for DID
 MasterPublicKey* getIdChainMasterPublicKey(const void* seed, int seedLen);
 
@@ -53,6 +57,13 @@ char* generateIdChainSubPrivateKey(const void* seed, int seedLen, int purpose, i
 char* generateIdChainSubPublicKey(const MasterPublicKey* masterPublicKey, int purpose, int index);
 
 char* getDid(const char* publicKey);
+
+// Apis for multi sign
+char* getMultiSignAddress(char** publicKeys, int length, int requiredSignCount);
+
+char* multiSignTransaction(const char* privateKey, char** publicKeys, int length, int requiredSignCount, const char* transaction);
+
+char* serializeMultiSignTransaction(const char* transaction);
 
 #ifdef __cplusplus
 }

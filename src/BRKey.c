@@ -129,3 +129,23 @@ UInt160 BRKeyHash160(BRKey *key)
     if (len > 0 && secp256k1_ec_pubkey_parse(_ctx, &pk, key->pubKey, len)) BRHash160(&hash, key->pubKey, len);
     return hash;
 }
+
+// simple version of secp256k1_ec_pubkey_parse(_ctx, &pk, key->pubKey, pkLen)
+// assigns DER encoded pubKey to key and returns true on success
+int BRKeyPubKeyDecode(secp256k1_pubkey *pk, const uint8_t *input, size_t inputlen)
+{
+    if (!(inputlen == 33 || inputlen == 65))
+        return 0;
+
+    pthread_once(&_ctx_once, _ctx_init);
+
+    secp256k1_ge Q;
+
+    memset(pk, 0, sizeof(*pk));
+    secp256k1_eckey_pubkey_parse(&Q, input, inputlen);
+    secp256k1_pubkey_save(pk, &Q);
+    secp256k1_ge_clear(&Q);
+
+    return 1;
+}
+

@@ -3,12 +3,13 @@
 #include "BRBIP32Sequence.h"
 #include "WalletTool.h"
 #include "ElaController.h"
-#include "BigIntFormat.h"
 #include "CMemBlock.h"
 #include "Mnemonic.h"
 #include "BRCrypto.h"
 #include "Utils.h"
 #include "BRBIP39Mnemonic.h"
+#include "BRAddress.h"
+#include "BRBase58.h"
 
 static char* getResultStrEx(const char* src, int len)
 {
@@ -24,13 +25,11 @@ static char* getResultStrEx(const char* src, int len)
 
 static char* getResultStr(const CMBlock& mblock)
 {
-    CMemBlock<char> cmblock;
-    cmblock = Hex2Str(mblock);
-
-    return getResultStrEx(cmblock, cmblock.GetSize());
+    std::string str = Utils::encodeHex(mblock);
+    return getResultStrEx(str.c_str(), str.size());
 }
 
-static char* getPublickeyFromPrivateKey(const BRKey& key)
+static char* getPublicKeyFromPrivateKey(const BRKey& key)
 {
     CMBlock privKey;
     privKey.SetMemFixed((uint8_t *) &key.secret, sizeof(key.secret));
@@ -47,10 +46,7 @@ static char* getAddressEx(const char* publicKey, int signType)
         return nullptr;
     }
 
-    CMemBlock<char> cPublickey;
-    cPublickey.SetMemFixed(publicKey, strlen(publicKey) + 1);
-    CMBlock pubKey = Str2Hex(cPublickey);
-
+    CMBlock pubKey = Utils::decodeHex(publicKey);
     CMBlock code = Utils::getCode(pubKey, signType);
 
     std::string redeedScript = Utils::encodeHex(code, code.GetSize());
@@ -106,6 +102,9 @@ char* getSinglePrivateKey(const void* seed, int seedLen)
     BRKey masterKey;
     BRBIP32APIAuthKey(&masterKey, seed, seedLen);
 
+    CMBlock cbseed(seedLen);
+    memcpy(cbseed, seed, seedLen);
+
     CMBlock privateKey(sizeof(UInt256));
     memcpy(privateKey, &masterKey.secret, sizeof(UInt256));
 
@@ -121,7 +120,7 @@ char* getSinglePublicKey(const void* seed, int seedLen)
     BRKey masterKey;
     BRBIP32APIAuthKey(&masterKey, seed, seedLen);
 
-    return getPublickeyFromPrivateKey(masterKey);
+    return getPublicKeyFromPrivateKey(masterKey);
 }
 
 MasterPublicKey* getMasterPublicKey(const void* seed, int seedLen, int coinType)
@@ -144,7 +143,7 @@ MasterPublicKey* getMasterPublicKey(const void* seed, int seedLen, int coinType)
 
 char* getAddress(const char* publicKey)
 {
-    return getAddressEx(publicKey, 0xAC);
+    return getAddressEx(publicKey, ELA_STANDARD);
 }
 
 char* generateMnemonic(const char* language, const char* words)
@@ -197,10 +196,7 @@ int sign(const char* privateKey, const void* data, int len, void** signedData)
         return 0;
     }
 
-    CMemBlock<char> cPrivatekey;
-    cPrivatekey.SetMemFixed(privateKey, strlen(privateKey) + 1);
-    CMBlock privKey = Str2Hex(cPrivatekey);
-
+    CMBlock privKey = Utils::decodeHex(privateKey);
     UInt256 md = UINT256_ZERO;
     BRSHA256(&md, data, len);
 
@@ -226,9 +222,7 @@ bool verify(const char* publicKey, const void* data,
         return false;
     }
 
-    CMemBlock<char> cPublickey;
-    cPublickey.SetMemFixed(publicKey, strlen(publicKey) + 1);
-    CMBlock pubKey = Str2Hex(cPublickey);
+    CMBlock pubKey = Utils::decodeHex(publicKey);
 
     UInt256 md = UINT256_ZERO;
     BRSHA256(&md, data, len);
@@ -293,6 +287,35 @@ void freeBuf(void* buf)
     free(buf);
 }
 
+char* getPublicKeyFromPrivateKey(const char* privateKey)
+{
+    CMBlock cbPrivateKey = Utils::decodeHex(privateKey);
+    BRKey key;
+    memcpy(&key.secret, cbPrivateKey, cbPrivateKey.GetSize());
+
+    return getPublicKeyFromPrivateKey(key);
+}
+
+bool isAddressValid(const char* address)
+{
+    bool r = false;
+    if (strlen(address) <= 1) {
+        return r;
+    }
+    uint8_t data[42];
+
+    if (BRBase58CheckDecode(data, sizeof(data), address) == 21) {
+        r = (data[0] == ELA_STAND_ADDRESS || data[0] == ELA_CROSSCHAIN_ADDRESS ||
+                data[0] == ELA_MULTISIG_ADDRESS || data[0] == ELA_IDCHAIN_ADDRESS);
+    }
+
+    if (r == 0 && strcmp(address, "1111111111111111111114oLvT2") == 0) {
+        r = 1;
+    }
+
+    return r;
+}
+
 MasterPublicKey* getIdChainMasterPublicKey(const void* seed, int seedLen)
 {
     if (!seed || seedLen <= 0) {
@@ -353,5 +376,54 @@ char* generateIdChainSubPublicKey(const MasterPublicKey* masterPublicKey, int pu
 
 char* getDid(const char* publicKey)
 {
-    return getAddressEx(publicKey, 0xAD);
+    return getAddressEx(publicKey, ELA_IDCHAIN);
 }
+
+static std::string opToString(char* publicKey)
+{
+    return std::string(publicKey, strlen(publicKey));
+}
+
+char* getMultiSignAddress(char** publicKeys, int length, int requiredSignCount)
+{
+    if (!publicKeys) {
+        return nullptr;
+    }
+
+    std::vector<std::string> pubKeys;
+    std::transform(publicKeys, publicKeys + length, std::back_inserter(pubKeys), opToString);
+
+    // redeem script -> program hash
+    UInt168 programHash = Utils::codeToProgramHash(
+            ElaController::GenerateRedeemScript(pubKeys, requiredSignCount));
+
+    // program hash -> address
+    std::string address = Utils::UInt168ToAddress(programHash);
+    return getResultStrEx(address.c_str(), address.length());
+}
+
+char* multiSignTransaction(const char* privateKey,
+        char** publicKeys, int length, int requiredSignCount, const char* transaction)
+{
+    if (!privateKey || !transaction) {
+        return nullptr;
+    }
+
+    std::vector<std::string> pubKeys;
+    std::transform(publicKeys, publicKeys + length, std::back_inserter(pubKeys), opToString);
+
+    std::string signedStr = ElaController::MultiSignTransaction(
+            privateKey, requiredSignCount, pubKeys, transaction);
+    return getResultStrEx(signedStr.c_str(), signedStr.length());
+}
+
+char* serializeMultiSignTransaction(const char* transaction)
+{
+    if (!transaction) {
+        return nullptr;
+    }
+
+    std::string serialized = ElaController::SerializeTransaction(transaction);
+    return getResultStrEx(serialized.c_str(), serialized.length());
+}
+

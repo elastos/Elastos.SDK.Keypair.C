@@ -2,7 +2,6 @@
 #include "Transaction.h"
 #include "../BRCrypto.h"
 #include "../BRBIP32Sequence.h"
-#include "../BigIntFormat.h"
 
 Transaction::Transaction()
     : mType(TransferAsset)
@@ -12,11 +11,6 @@ Transaction::Transaction()
     , mFee(0)
     , mTxHash(UINT256_ZERO)
 {
-    std::string memo;
-    Attribute* pAttr = new Attribute(memo);
-    if (pAttr) {
-        mAttributes.push_back(pAttr);
-    }
 }
 
 Transaction::Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs, std::string memo)
@@ -74,6 +68,7 @@ UInt256 Transaction::GetHash()
 void Transaction::Serialize(ByteStream &ostream)
 {
     SerializeUnsigned(ostream);
+    CMBlock data = ostream.getBuffer();
 
     ostream.writeVarUint(mPrograms.size());
     for (size_t i = 0; i < mPrograms.size(); i++) {
@@ -81,30 +76,42 @@ void Transaction::Serialize(ByteStream &ostream)
     }
 }
 
-void Transaction::Sign(const CMBlock & privteKey)
+CMBlock Transaction::SignData(const CMBlock& privateKey)
 {
     ByteStream ostream;
     SerializeUnsigned(ostream);
     CMBlock data = ostream.getBuffer();
-    CMBlock shaData(sizeof(UInt256));
-    BRSHA256(shaData, data, data.GetSize());
 
-    CMBlock md32;
-    md32.SetMemFixed(shaData, shaData.GetSize());
-
-    CMBlock signedData;
-    signedData.Resize(65);
-    ECDSA65Sign_sha256(privteKey, privteKey.GetSize(), (UInt256 *) &md32[0], signedData, signedData.GetSize());
+    printf("unsigned data: ");
+    Utils::printBinary(data, data.GetSize());
 
     CMBlock publicKey;
     publicKey.Resize(33);
-    getPubKeyFromPrivKey(publicKey, (UInt256 *)(uint8_t *)privteKey);
+    getPubKeyFromPrivKey(publicKey, (UInt256 *)(uint8_t *)privateKey);
 
-    CMemBlock<char> cPrivkey, cPubkey;
-    cPrivkey = Hex2Str(privteKey);
-    cPubkey = Hex2Str(publicKey);
-    printf("private key: %s\n", (const char *)cPrivkey);
-    printf("public key: %s\n", (const char *)cPubkey);
+    printf("sign public key: ");
+    Utils::printBinary(publicKey, publicKey.GetSize());
+
+    CMBlock shaData(sizeof(UInt256));
+    BRSHA256(shaData, data, data.GetSize());
+
+    CMBlock signedData;
+    signedData.Resize(65);
+    ECDSA65Sign_sha256(privateKey, privateKey.GetSize(),
+            (const UInt256 *) &shaData[0], signedData, signedData.GetSize());
+
+    printf("signed data: ");
+    Utils::printBinary(signedData, signedData.GetSize());
+    return signedData;
+}
+
+void Transaction::Sign(const CMBlock & privateKey)
+{
+    CMBlock signedData = SignData(privateKey);
+
+    CMBlock publicKey;
+    publicKey.Resize(33);
+    getPubKeyFromPrivKey(publicKey, (UInt256 *)(uint8_t *)privateKey);
 
     CMBlock code = Utils::getCode(publicKey);
 
@@ -112,6 +119,31 @@ void Transaction::Sign(const CMBlock & privteKey)
     if (program) {
         mPrograms.push_back(program);
     }
+}
+
+void Transaction::MultiSign(const CMBlock& privateKey, const CMBlock& redeemScript)
+{
+    if (mPrograms.empty()) {
+        Program* program = new Program();
+        if (!program) return;
+
+        program->mCode = redeemScript;
+        mPrograms.push_back(program);
+    }
+
+    if (mPrograms.size() != 1) {
+        printf("Multi-sign program should be unique.\n");
+        return;
+    }
+
+    ByteStream stream;
+    if (mPrograms[0]->mParameter.GetSize() > 0) {
+        stream.putBytes(mPrograms[0]->mParameter, mPrograms[0]->mParameter.GetSize());
+    }
+
+    CMBlock signedData = SignData(privateKey);
+    stream.putBytes(signedData, signedData.GetSize());
+    mPrograms[0]->mParameter = stream.getBuffer();
 }
 
 std::vector<CMBlock> Transaction::GetPrivateKeys()
@@ -155,3 +187,101 @@ void Transaction::SerializeUnsigned(ByteStream &ostream) const
 
     ostream.writeUint32(mLockTime);
 }
+
+void Transaction::FromJson(const nlohmann::json &jsonData)
+{
+    std::vector<nlohmann::json> jUtxoInputs = jsonData["UTXOInputs"];
+
+    for (nlohmann::json utxoInput : jUtxoInputs) {
+        UTXOInput* input = new UTXOInput();
+        if (input) {
+            input->FromJson(utxoInput);
+            mInputs.push_back(input);
+        }
+    }
+
+    std::vector<nlohmann::json> jTxOuputs = jsonData["Outputs"];
+    for(nlohmann::json txOutput : jTxOuputs) {
+        TxOutput* output = new TxOutput();
+        if (output) {
+            output->FromJson(txOutput);
+            mOutputs.push_back(output);
+        }
+    }
+
+    auto jPrograms = jsonData.find("Programs");
+    if (jPrograms != jsonData.end()) {
+        std::vector<nlohmann::json> programs = jsonData["Programs"];
+        for (nlohmann::json program : programs) {
+            Program* pProgram = new Program();
+            if (pProgram) {
+                pProgram->FromJson(program);
+                mPrograms.push_back(pProgram);
+            }
+        }
+    }
+
+    auto jAttrs = jsonData.find("Attributes");
+    if (jAttrs != jsonData.end()) {
+        std::vector<nlohmann::json> attrs = jsonData["Attributes"];
+        for (nlohmann::json attribute : attrs) {
+            Attribute* pAttr = new Attribute("");
+            if (pAttr) {
+                pAttr->FromJson(attribute);
+                mAttributes.push_back(pAttr);
+            }
+        }
+    }
+    else {
+        std::string memo;
+        auto jMemo = jsonData.find("Memo");
+        if (jMemo != jsonData.end()) {
+            memo = jsonData["Memo"].get<std::string>();
+        }
+
+        Attribute* pAttr = new Attribute(memo);
+        if (pAttr) {
+            mAttributes.push_back(pAttr);
+        }
+    }
+}
+
+nlohmann::json Transaction::ToJson()
+{
+    nlohmann::json jsonData;
+
+    std::vector<nlohmann::json> inputs;
+    for (UTXOInput* input : mInputs) {
+        nlohmann::json inputJson = input->ToJson();
+        inputs.push_back(inputJson);
+    }
+    jsonData["UTXOInputs"] = inputs;
+
+    std::vector<nlohmann::json> outputs;
+    for (TxOutput* output : mOutputs) {
+        nlohmann::json outputJson = output->ToJson();
+        outputs.push_back(outputJson);
+    }
+    jsonData["Outputs"] = outputs;
+
+    if (mPrograms.size() > 0) {
+        std::vector<nlohmann::json> programs;
+        for (Program* program : mPrograms) {
+            nlohmann::json programJson = program->ToJson();
+            programs.push_back(programJson);
+        }
+        jsonData["Programs"] = programs;
+    }
+
+    if (mAttributes.size() > 0) {
+        std::vector<nlohmann::json> attributes;
+        for (Attribute* attribute : mAttributes) {
+            nlohmann::json attrJson = attribute->ToJson();
+            attributes.push_back(attrJson);
+        }
+        jsonData["Attributes"] = attributes;
+    }
+
+    return jsonData;
+}
+
