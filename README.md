@@ -67,3 +67,36 @@ $ cd ios
 $ cmake ../..
 $ make -j4
 ```
+
+## Build API Docs
+
+### Install Pre-Requirements
+
+#### Ubuntu
+
+```shell
+$ sudo apt-get update
+$ sudo apt-get install python-pip
+$ sudo apt-get install doxygen
+$ sudo pip install -U Sphinx
+$ sudo pip install breathe
+```
+
+#### Mac
+
+```shell
+$ brew install python-sphinx
+$ brew install doxygen
+$ pip install -U Sphinx
+$ pip install breathe
+```
+
+#### 2. Build
+
+Run the command under the directory where runs your building commands:
+
+```shell
+$ cd docs
+$ doxygen Doxyfile
+$ make html
+```

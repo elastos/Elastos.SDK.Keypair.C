@@ -27,7 +27,6 @@ RUN set -ex                                                                     
         g++-multilib \
         git \
         gperf \
-        libxml2-utils \
         make \
         bc \
         zip \
@@ -41,6 +40,12 @@ RUN set -ex                                                                     
         autopoint \
         flex \
         libncurses5-dev \
+        python \
+        doxygen \
+        python-sphinx \
+    && curl -L -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
+    && python /tmp/get-pip.py \
+    && pip install breathe \
     && rm -rf /var/lib/apt/list/*
 
 RUN set -ex                                                                         && \
