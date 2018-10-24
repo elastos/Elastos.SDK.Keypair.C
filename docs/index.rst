@@ -1,4 +1,4 @@
-Nodela
+Elastos Wallet Lib C
 ===================================
 
 .. image:: logo.png
