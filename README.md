@@ -62,7 +62,7 @@ $ make
 
 ```shell
 $ cd build
-$ . ios.sh x86_64
+$ . ./ios.sh x86_64
 $ cd ios
 $ cmake ../..
 $ make -j4
