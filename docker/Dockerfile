@@ -41,11 +41,10 @@ RUN set -ex                                                                     
         flex \
         libncurses5-dev \
         python \
-        doxygen \
         python-sphinx \
     && curl -L -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
     && python /tmp/get-pip.py \
-    && pip install breathe \
+    && pip install sphinx_rtd_theme \
     && rm -rf /var/lib/apt/list/*
 
 RUN set -ex                                                                         && \

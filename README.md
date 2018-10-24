@@ -1,4 +1,6 @@
-# Elastos.Wallet.Utility
+# Elastos.Wallet.Lib.C
+
+[Elastos.ORG.Wallet.Lib.C documentation](https://elastoswalletlibc.readthedocs.io)
 
 ## Use dockerized Untuntu_64bit build environment
 
@@ -77,18 +79,16 @@ $ make -j4
 ```shell
 $ sudo apt-get update
 $ sudo apt-get install python-pip
-$ sudo apt-get install doxygen
 $ sudo pip install -U Sphinx
-$ sudo pip install breathe
+$ sudo pip install sphinx_rtd_theme
 ```
 
 #### Mac
 
 ```shell
 $ brew install python-sphinx
-$ brew install doxygen
 $ pip install -U Sphinx
-$ pip install breathe
+$ pip install sphinx_rtd_theme
 ```
 
 #### 2. Build
@@ -97,6 +97,5 @@ Run the command under the directory where runs your building commands:
 
 ```shell
 $ cd docs
-$ doxygen Doxyfile
 $ make html
 ```
