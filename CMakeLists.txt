@@ -5,6 +5,8 @@ set(TARGET_DIR $ENV{TARGET_PLATFORM}-$ENV{TARGET_ABI})
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/openssl/libs/${TARGET_DIR})
 
+include(BuildType.cmake)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 11)

@@ -42,7 +42,7 @@ $ cd build
 $ . ./linux.sh
 $ mkdir linux
 $ cd linux
-$ cmake ../..
+$ cmake -D CMAKE_BUILD_TYPE=Debug/Release ../..
 $ make
 ```
 
@@ -54,7 +54,7 @@ $ cd build
 $ . ./android armeavi-v7a(for armv7)/arm64(for armv8)
 $ mkdir android
 $ cd android
-$ cmake ../..
+$ cmake -D CMAKE_BUILD_TYPE=Debug/Release ../..
 $ make
 ```
 
@@ -66,7 +66,7 @@ $ make
 $ cd build
 $ . ./ios.sh x86_64
 $ cd ios
-$ cmake ../..
+$ cmake -D CMAKE_BUILD_TYPE=Debug/Release ../..
 $ make -j4
 ```
 
