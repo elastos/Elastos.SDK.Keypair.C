@@ -25,7 +25,11 @@ if("$ENV{TARGET_PLATFORM}" STREQUAL "android")
     string(APPEND CMAKE_LINK_FLAGS " -pie")
 
     #choose Android version. This is not the version of Cmake.
-    set(CMAKE_SYSTEM_VERSION 21)
+    if("$ENV{TARGET_ABI}" STREQUAL "arm64-v8a")
+        set(CMAKE_SYSTEM_VERSION 21)
+    else()
+        set(CMAKE_SYSTEM_VERSION 19)
+    endif("$ENV{TARGET_ABI}" STREQUAL "arm64-v8a")
 
     #choose Android ABI. Mine is armeabi-v7a
     message($ENV{TARGET_ABI})
