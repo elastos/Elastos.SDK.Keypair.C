@@ -149,9 +149,23 @@ void Transaction::MultiSign(const CMBlock& privateKey, const CMBlock& redeemScri
 std::vector<CMBlock> Transaction::GetPrivateKeys()
 {
     std::vector<CMBlock> privateKeys;
-    for (UTXOInput* input : mInputs)
-    {
-        privateKeys.push_back(input->mPrivateKey);
+    for (UTXOInput* input : mInputs) {
+        if (privateKeys.empty()) {
+            privateKeys.push_back(input->mPrivateKey);
+        }
+        else {
+            bool found = false;
+            for (int i = 0; i < privateKeys.size(); i++) {
+                if (memcmp(privateKeys[i], input->mPrivateKey, input->mPrivateKey.GetSize()) == 0) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found) continue;
+
+            privateKeys.push_back(input->mPrivateKey);
+        }
     }
 
     return privateKeys;
