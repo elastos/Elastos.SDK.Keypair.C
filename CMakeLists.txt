@@ -23,8 +23,7 @@ if("$ENV{TARGET_PLATFORM}" STREQUAL "android")
     set(CMAKE_ANDROID_NDK_TOOLCHAIN_VERSION clang)
     set(CMAKE_ANDROID_STL_TYPE c++_static)
 
-    string(APPEND CMAKE_C_FLAGS " -fPIE -fPIC")
-    string(APPEND CMAKE_LINK_FLAGS " -pie")
+    string(APPEND CMAKE_C_FLAGS " -fPIC")
 
     #choose Android version. This is not the version of Cmake.
     if("$ENV{TARGET_ABI}" STREQUAL "arm64-v8a")
@@ -47,6 +46,10 @@ elseif("$ENV{TARGET_PLATFORM}" STREQUAL "ios")
 else("$ENV{TARGET_PLATFORM}" STREQUAL "android")
     string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
 endif("$ENV{TARGET_PLATFORM}" STREQUAL "android")
+
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -s")
+endif()
 
 project(utility)
 
