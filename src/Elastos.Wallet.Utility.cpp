@@ -207,9 +207,11 @@ int sign(const char* privateKey, const void* data, int len, void** signedData)
         int signedlen = mbSignedData.GetSize();
         void* buf = malloc(signedlen);
         if (!buf) return 0;
-        memcpy(buf, mbSignedData, signedlen);
+
+        // The first byte is the length of signed data.
+        memcpy(buf, mbSignedData + 1, signedlen - 1);
         *signedData = buf;
-        return signedlen;
+        return signedlen - 1;
     }
 
     return 0;
@@ -227,8 +229,11 @@ bool verify(const char* publicKey, const void* data,
     UInt256 md = UINT256_ZERO;
     BRSHA256(&md, data, len);
     CMBlock mbSignedData;
-    mbSignedData.Resize((size_t) signedLen);
-    memcpy((void *)mbSignedData, signedData, signedLen);
+    mbSignedData.Resize((size_t) signedLen + 1);
+
+    // The first byte is the length of signed data.
+    mbSignedData[0] = (uint8_t)signedLen;
+    memcpy(mbSignedData + 1, signedData, signedLen);
 
     return ECDSA65Verify_sha256(pubKey, pubKey.GetSize(), &md, mbSignedData, mbSignedData.GetSize());
 }

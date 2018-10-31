@@ -28,7 +28,7 @@ public:
         }
         else {
             mUsage = Usage::Memo;
-            mData = Utils::decodeHex(memo);
+            mData = Utils::convertToMemBlock(memo);
         }
     }
 
