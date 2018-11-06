@@ -2,6 +2,7 @@
 #include "Transaction.h"
 #include "../BRCrypto.h"
 #include "../BRBIP32Sequence.h"
+#include "../log.h"
 
 Transaction::Transaction()
     : mType(TransferAsset)
@@ -150,6 +151,10 @@ std::vector<CMBlock> Transaction::GetPrivateKeys()
 {
     std::vector<CMBlock> privateKeys;
     for (UTXOInput* input : mInputs) {
+        if (input->mPrivateKey.GetSize() == 0) {
+            continue;
+        }
+
         if (privateKeys.empty()) {
             privateKeys.push_back(input->mPrivateKey);
         }
@@ -177,12 +182,13 @@ void Transaction::SerializeUnsigned(ByteStream &ostream) const
 
     ostream.writeBytes(&mPayloadVersion, 1);
 
-    // TODO: payload is null
-    // if (mPayload == nullptr) {
-    //     Log::getLogger()->error("payload should not be null, payload type = {}, version = {}", _transaction->type, _transaction->payloadVersion);
-    //     throw std::logic_error("payload should not be null");
-    // }
-    // mPayload->Serialize(ostream);
+    //Payload
+    if (mCrossChainAssets.size() > 0){
+        ostream.putVarUint(mCrossChainAssets.size());
+        for (CrossChainAsset* crossChainAsset : mCrossChainAssets) {
+            crossChainAsset->Serialize(ostream);
+        }
+    }
 
     ostream.writeVarUint(mAttributes.size());
     for (size_t i = 0; i < mAttributes.size(); i++) {
@@ -258,6 +264,22 @@ void Transaction::FromJson(const nlohmann::json &jsonData)
             mAttributes.push_back(pAttr);
         }
     }
+
+    auto jCrossAssets = jsonData.find("CrossChainAsset");
+    if (jCrossAssets != jsonData.end()) {
+        mType = TransferCrossChainAsset;
+        std::vector<nlohmann::json> crossChainAssets = jsonData["CrossChainAsset"];
+        uint32_t index = 0;
+        for (nlohmann::json crossChainAsset : crossChainAssets) {
+            CrossChainAsset* pCrossChainAsset = new CrossChainAsset(index);
+            if (pCrossChainAsset) {
+                pCrossChainAsset->FromJson(crossChainAsset);
+                mCrossChainAssets.push_back(pCrossChainAsset);
+            }
+            index++;
+        }
+    }
+
 }
 
 nlohmann::json Transaction::ToJson()
@@ -294,6 +316,15 @@ nlohmann::json Transaction::ToJson()
             attributes.push_back(attrJson);
         }
         jsonData["Attributes"] = attributes;
+    }
+
+    if (mCrossChainAssets.size() > 0) {
+        std::vector<nlohmann::json> crossChainAssets;
+        for (CrossChainAsset* crossChainAsset : mCrossChainAssets) {
+            nlohmann::json crossChainAssetJaon = crossChainAsset->ToJson();
+            crossChainAssets.push_back(crossChainAssetJaon);
+        }
+        jsonData["CrossChainAsset"] = crossChainAssets;
     }
 
     return jsonData;

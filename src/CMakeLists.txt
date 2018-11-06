@@ -22,6 +22,7 @@ set(SOURCES
     Transaction/Transaction.cpp
     Transaction/TxOutput.cpp
     Transaction/UTXOInput.cpp
+    Transaction/CrossChainAsset.cpp
     Elastos.Wallet.Utility.cpp
 )
 
@@ -32,6 +33,7 @@ if("$ENV{TARGET_PLATFORM}" STREQUAL "android")
         ssl
         crypto
         bigint
+        log
     )
 elseif("$ENV{TARGET_PLATFORM}" STREQUAL "ios")
     target_link_libraries(Elastos.Wallet.Utility

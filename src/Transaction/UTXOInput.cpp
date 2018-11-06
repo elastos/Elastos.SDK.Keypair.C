@@ -1,5 +1,6 @@
 
 #include "UTXOInput.h"
+#include "log.h"
 
 void UTXOInput::Serialize(ByteStream& ostream)
 {
@@ -18,6 +19,9 @@ void UTXOInput::FromJson(const nlohmann::json &jsonData)
     if (jPrivateKey != jsonData.end()) {
         std::string privateKey = jsonData["privateKey"].get<std::string>();
         mPrivateKey = Utils::decodeHex(privateKey);
+    }
+    else {
+        WALLET_C_LOG("input do not include private key.\n");
     }
 
     mAddress = jsonData["address"].get<std::string>();

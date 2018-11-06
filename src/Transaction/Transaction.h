@@ -6,6 +6,7 @@
 #include "TxOutput.h"
 #include "Attribute.h"
 #include "Program.h"
+#include "CrossChainAsset.h"
 #include "../BRInt.h"
 #include "../ByteStream.h"
 #include <vector>
@@ -64,6 +65,7 @@ private:
     std::vector<TxOutput*> mOutputs;
     std::vector<Attribute*> mAttributes;
     std::vector<Program*> mPrograms;
+    std::vector<CrossChainAsset*> mCrossChainAssets;
 
     uint32_t mLockTime;
 

@@ -9,6 +9,7 @@
 #include "secp256k1.h"
 #include "BigIntegerLibrary.hh"
 #include "BRKey.h"
+#include "log.h"
 
 struct {
     bool operator()(const std::string &a, const std::string &b) const
@@ -56,6 +57,10 @@ std::string ElaController::genRawTransaction(const std::string jsonStr)
     }
 
     std::vector<CMBlock> privateKeys = transaction->GetPrivateKeys();
+    if (privateKeys.size() == 0) {
+        WALLET_C_LOG("genRawTransaction error: no private key.\n");
+        return "";
+    }
     for (CMBlock privateKey : privateKeys) {
         transaction->Sign(privateKey);
     }

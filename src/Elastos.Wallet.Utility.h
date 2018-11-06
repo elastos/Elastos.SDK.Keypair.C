@@ -22,6 +22,7 @@ extern "C" {
 #define INTERNAL_CHAIN     1
 
 #define COIN_TYPE_ELA      0
+#define COIN_TYPE_IDCHAIN  1
 
 typedef struct
 {

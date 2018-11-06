@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include "nlohmann/json.hpp"
 
+#include "../src/Utils.h"
+
 char* readMnemonicFile(const char* path)
 {
     FILE* file = fopen(path, "r");
@@ -28,6 +30,39 @@ char* readMnemonicFile(const char* path)
     fclose(file);
 
     return buf;
+}
+
+void SignMemo()
+{
+    // const char* memo = "{\"userId\":\"clark\",\"phone\":\"13809011232\"}";
+    const char* memo = "68656C6C6F776F726C64";
+    const char* privateKey = "1615CC0AB02168680354E07048F9CE54B2921847F68453586C4A2DBC23BA2C9D";
+
+    CMBlock data = Utils::decodeHex(memo);
+
+    // CMBlock data = Utils::convertToMemBlock(memo);
+    uint8_t* signedData;
+    int signedLen = sign(privateKey, (void*)data, data.GetSize(), (void**)&signedData);
+
+    CMBlock cmSigned;
+    cmSigned.SetMemFixed(signedData, signedLen);
+    std::string signedStr = Utils::encodeHex(cmSigned);
+
+    printf("signed: %s\n", signedStr.c_str());
+}
+
+void verifyMemo()
+{
+    const char* memo = "68656C6C6F776F726C64";
+    CMBlock data = Utils::decodeHex(memo);
+
+    const char* signedMemo = "1dd38b5678622a1e8614450d2995c01a75897c50aeb88d271689f57a68ba8b6f8c05305af2cc8bc98a7c53192004777050f40b996101d7bed51a25f5aed75579";
+    CMBlock signedData = Utils::decodeHex(signedMemo);
+
+    bool pass = verify("028971D6DA990971ABF7E8338FA1A81E1342D0E0FD8C4D2A4DF68F776CA66EA0B1",
+            data, data.GetSize(), signedData, signedData.GetSize());
+
+    printf("verify: %d\n", pass);
 }
 
 void TestGenrateMnemonic()
@@ -121,8 +156,8 @@ void TestHDWalletAddress()
     char* publicKeys[count];
     char* addresses[count];
     for (int i = 0; i < count; i++) {
-        privateKeys[i] = generateSubPrivateKey(seed, seedLen, COIN_TYPE_ELA, INTERNAL_CHAIN, i);
-        publicKeys[i] = generateSubPublicKey(masterPublicKey, INTERNAL_CHAIN, i);
+        privateKeys[i] = generateSubPrivateKey(seed, seedLen, COIN_TYPE_ELA, EXTERNAL_CHAIN, i);
+        publicKeys[i] = generateSubPublicKey(masterPublicKey, EXTERNAL_CHAIN, i);
         addresses[i] = getAddress(publicKeys[i]);
 
         printf("private key %d: %s\n", i, privateKeys[i]);
@@ -279,6 +314,12 @@ int main(int argc, char *argv[])
         }
         else if (!command.compare("exit")) {
             break;
+        }
+        else if (!command.compare("memo")) {
+            SignMemo();
+        }
+        else if (!command.compare("vmemo")) {
+            verifyMemo();
         }
         else if (command.length() != 0){
             std::cout << "not support command\n";
