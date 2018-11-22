@@ -51,7 +51,7 @@ $ make
 ```shell
 $ export ANDROID_NDK=~/your_android_ndk_dir
 $ cd build
-$ . ./android armeavi-v7a(for armv7)/arm64(for armv8)
+$ . ./android armeavi-v7a(for armv7)/arm64(for armv8)/x86
 $ mkdir android
 $ cd android
 $ cmake -D CMAKE_BUILD_TYPE=Debug/Release ../..
