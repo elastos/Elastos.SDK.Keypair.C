@@ -35,6 +35,11 @@ struct {
 Transaction* ElaController::GenTransactionFromJson(const std::string json)
 {
     nlohmann::json txJson = nlohmann::json::parse(json);
+    auto jTx = txJson.find("Transactions");
+    if (jTx == txJson.end()) {
+        WALLET_C_LOG("transaction data invalid\n");
+        return nullptr;
+    }
     std::vector<nlohmann::json> transactions = txJson["Transactions"];
 
     nlohmann::json jTransaction = transactions[0];

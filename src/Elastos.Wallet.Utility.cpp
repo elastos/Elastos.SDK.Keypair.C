@@ -93,22 +93,15 @@ static BRMasterPubKey* toBRMasterPubKey(const MasterPublicKey* pubKey)
     return brPublicKey;
 }
 
+char* generateSubPrivateKey(const void* seed, int seedLen, int coinType, int chain, int index);
+
 char* getSinglePrivateKey(const void* seed, int seedLen)
 {
     if (!seed || seedLen <= 0) {
         return nullptr;
     }
 
-    BRKey masterKey;
-    BRBIP32APIAuthKey(&masterKey, seed, seedLen);
-
-    CMBlock cbseed(seedLen);
-    memcpy(cbseed, seed, seedLen);
-
-    CMBlock privateKey(sizeof(UInt256));
-    memcpy(privateKey, &masterKey.secret, sizeof(UInt256));
-
-    return getResultStr(privateKey);
+    return generateSubPrivateKey(seed, seedLen, COIN_TYPE_ELA, EXTERNAL_CHAIN, 0);
 }
 
 char* getSinglePublicKey(const void* seed, int seedLen)
@@ -117,10 +110,10 @@ char* getSinglePublicKey(const void* seed, int seedLen)
         return nullptr;
     }
 
-    BRKey masterKey;
-    BRBIP32APIAuthKey(&masterKey, seed, seedLen);
-
-    return getPublicKeyFromPrivateKey(masterKey);
+    char* privateKey = getSinglePrivateKey(seed, seedLen);
+    char* publicKey = getPublicKeyFromPrivateKey(privateKey);
+    free(privateKey);
+    return publicKey;
 }
 
 MasterPublicKey* getMasterPublicKey(const void* seed, int seedLen, int coinType)
