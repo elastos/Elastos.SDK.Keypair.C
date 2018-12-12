@@ -1,52 +1,24 @@
+pkg_search_module(pkg-openssl REQUIRED openssl)
+message(STATUS "openssl include path: ${pkg-openssl_INCLUDE_DIRS}")
+message(STATUS "openssl library path: ${pkg-openssl_STATIC_LDFLAGS}")
 
+file( GLOB Elastos.ORG.Wallet.Lib.C-SOURCES "*.cpp" "*.c" "Transaction/*.cpp")
+file( GLOB Elastos.ORG.Wallet.Lib.C-HEADERS "Elastos.Wallet.Utility.h" )
 
-set(SOURCES
-    BRInt.c
-    BRKey.c
-    BRCrypto.c
-    BRAddress.c
-    BRBase58.c
-    BRBech32.c
-    BRBIP39Mnemonic.c
-    BRBIP32Sequence.c
-    Mnemonic.cpp
-    WalletTool.cpp
-    Utils.cpp
-    BTCBase58.cpp
-    AES_256_CCM.cpp
-    Base64.cpp
-    ElaController.cpp
-    ByteStream.cpp
-    Transaction/Attribute.cpp
-    Transaction/Program.cpp
-    Transaction/Transaction.cpp
-    Transaction/TxOutput.cpp
-    Transaction/UTXOInput.cpp
-    Transaction/CrossChainAsset.cpp
-    Elastos.Wallet.Utility.cpp
-)
-
-add_library(Elastos.Wallet.Utility SHARED ${SOURCES})
-
-if("$ENV{TARGET_PLATFORM}" STREQUAL "android")
-    target_link_libraries(Elastos.Wallet.Utility
-        ssl
-        crypto
-        bigint
-        log
-    )
-elseif("$ENV{TARGET_PLATFORM}" STREQUAL "ios")
-    target_link_libraries(Elastos.Wallet.Utility
-        ssl
-        crypto
-        pthread
-        bigint
-    )
-elseif("$ENV{TARGET_PLATFORM}" STREQUAL "linux")
-    target_link_libraries(Elastos.Wallet.Utility
-        ssl
-        crypto
-        pthread
-        bigint
-    )
+add_library(Elastos.ORG.Wallet.Lib.C ${Elastos.ORG.Wallet.Lib.C-SOURCES})
+target_include_directories(Elastos.ORG.Wallet.Lib.C PRIVATE
+	"${pkg-openssl_INCLUDE_DIRS}"
+	"${CMAKE_CURRENT_SOURCE_DIR}/secp256k1"
+	"${CMAKE_CURRENT_SOURCE_DIR}/secp256k1/include")
+target_link_libraries(Elastos.ORG.Wallet.Lib.C ${pkg-openssl_STATIC_LDFLAGS})
+target_link_libraries(Elastos.ORG.Wallet.Lib.C thirdparty)
+if("${CFG_TARGET_PLATFORM}" STREQUAL "Android")
+	target_link_libraries(Elastos.ORG.Wallet.Lib.C log)
 endif()
+
+set_target_properties(Elastos.ORG.Wallet.Lib.C PROPERTIES PUBLIC_HEADER "${Elastos.ORG.Wallet.Lib.C-HEADERS}")
+install(TARGETS Elastos.ORG.Wallet.Lib.C
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+		PUBLIC_HEADER DESTINATION include/Elastos.ORG.Wallet.Lib.C)

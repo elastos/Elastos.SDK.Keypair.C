@@ -1,73 +1,63 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 
-
-set(TARGET_DIR $ENV{TARGET_PLATFORM}-$ENV{TARGET_ABI})
-
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/openssl/libs/${TARGET_DIR})
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 include(BuildType.cmake)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIRECTORY}/build/${TARGET_DIR})
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIRECTORY}/build/${TARGET_DIR})
-
-if("$ENV{TARGET_PLATFORM}" STREQUAL "android")
-
-    set(CMAKE_SYSTEM_NAME Android)
-    set(CMAKE_ANDROID_NDK $ENV{ANDROID_NDK})
-    set(CMAKE_ANDROID_NDK_TOOLCHAIN_VERSION clang)
-    set(CMAKE_ANDROID_STL_TYPE c++_static)
-
-    string(APPEND CMAKE_C_FLAGS " -fPIC")
-
-    #choose Android version. This is not the version of Cmake.
-    if("$ENV{TARGET_ABI}" STREQUAL "arm64-v8a")
-        set(CMAKE_SYSTEM_VERSION 21)
-    else()
-        set(CMAKE_SYSTEM_VERSION 19)
-    endif("$ENV{TARGET_ABI}" STREQUAL "arm64-v8a")
-
-    #choose Android ABI. Mine is armeabi-v7a
-    message($ENV{TARGET_ABI})
-    set(CMAKE_ANDROID_ARCH_ABI $ENV{TARGET_ABI})
-
-    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
-elseif("$ENV{TARGET_PLATFORM}" STREQUAL "ios")
-    set(CMAKE_SYSTEM_NAME Darwin)
-    set(CMAKE_CROSSCOMPILING TRUE)
-
-    set(CMAKE_OSX_SYSROOT $ENV{OSX_SDK})
-    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-undefined,error")
-else("$ENV{TARGET_PLATFORM}" STREQUAL "android")
-    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
-endif("$ENV{TARGET_PLATFORM}" STREQUAL "android")
-
-if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -s")
+if(DEFINED ENV{CFG_TARGET_ABI})
+	set(CFG_TARGET_PLATFORM $ENV{CFG_TARGET_PLATFORM} CACHE STRING "")
 endif()
 
-project(utility)
+if("${CFG_TARGET_PLATFORM}" STREQUAL "Android")
+	set(ANDROID_NDK_HOME $ENV{ANDROID_NDK_HOME} CACHE STRING "")
+	if(DEFINED ENV{CFG_TARGET_ABI})
+		set(CFG_TARGET_ABI $ENV{CFG_TARGET_ABI} CACHE STRING "")
+	else()
+		set(CFG_TARGET_ABI "armeabi-v7a" CACHE STRING "")
+	endif()
 
-set(CMAKE_VERBOSE_MAKEFILE OFF)
+	include(Android.cmake)
+elseif("${CFG_TARGET_PLATFORM}" STREQUAL "iOS")
+	if(DEFINED ENV{CFG_TARGET_ABI})
+		set(CFG_TARGET_ABI $ENV{CFG_TARGET_ABI} CACHE STRING "")
+	else()
+		set(CFG_TARGET_ABI "arm64" CACHE STRING "")
+	endif()
 
-include_directories(
-  thirdparty
-  thirdparty/openssl
-  thirdparty/bigint-2010.04.30
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1)
+	set(IOS_ARCH ${CFG_TARGET_ABI})
+	set(IOS_UNIVERSAL TRUE)
+	set(IOS_DEPLOYMENT_CFG_TARGET 8)
+	set(IOS_BITCODE 0)
+	include(iOS.cmake)
+else()
+    execute_process(COMMAND uname -s OUTPUT_VARIABLE SYSTEM_NAME OUTPUT_STRIP_TRAILING_WHITESPACE)
+	set(CFG_TARGET_PLATFORM "${SYSTEM_NAME}" CACHE STRING "")
+	if(DEFINED ENV{CFG_TARGET_ABI})
+		set(CFG_TARGET_ABI $ENV{CFG_TARGET_ABI} CACHE STRING "")
+	else()
+		set(CFG_TARGET_ABI "x86_64" CACHE STRING "")
+	endif()
+endif()
 
+# enable pkg-config and set pkg-config find path
+set(CFG_BUILD_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/build/sysroot/${CFG_TARGET_PLATFORM}/${CFG_TARGET_ABI}" CACHE STRING "")
+find_package(PkgConfig REQUIRED)
+set(ENV{PKG_CONFIG_PATH} "${CFG_BUILD_ROOT}/lib/pkgconfig")
+
+message(STATUS "********************************************")
+message(STATUS "CFG_TARGET_PLATFORM : ${CFG_TARGET_PLATFORM}")
+message(STATUS "CFG_TARGET_ABI      : ${CFG_TARGET_ABI}")
+message(STATUS "CFG_BUILD_ROOT      : ${CFG_BUILD_ROOT}")
+message(STATUS "*********************************************")
+
+project(Elastos.ORG.Wallet.Lib.C)
 add_subdirectory(thirdparty)
 add_subdirectory(src)
 
-
-if("$ENV{TARGET_PLATFORM}" STREQUAL "linux")
-    add_subdirectory(test)
-endif("$ENV{TARGET_PLATFORM}" STREQUAL "linux")
-
+if(DEFINED CFG_WITH_TEST)
+	add_subdirectory(test)
+endif()

@@ -1,7 +1,5 @@
 
 #build folder
-/build/android*
-/build/ios*
-/build/linux*
+build
 
 .DS_Store
