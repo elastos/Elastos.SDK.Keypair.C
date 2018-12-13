@@ -5,13 +5,17 @@ message(STATUS "openssl library path: ${pkg-openssl_STATIC_LDFLAGS}")
 file( GLOB Elastos.ORG.Wallet.Lib.C-SOURCES "*.cpp" "*.c" "Transaction/*.cpp")
 file( GLOB Elastos.ORG.Wallet.Lib.C-HEADERS "Elastos.Wallet.Utility.h" )
 
-add_library(Elastos.ORG.Wallet.Lib.C ${Elastos.ORG.Wallet.Lib.C-SOURCES})
+add_library(Elastos.ORG.Wallet.Lib.C)
+target_sources(Elastos.ORG.Wallet.Lib.C PRIVATE
+	${Elastos.ORG.Wallet.Lib.C-SOURCES}
+	$<TARGET_OBJECTS:thirdparty>)
 target_include_directories(Elastos.ORG.Wallet.Lib.C PRIVATE
 	"${pkg-openssl_INCLUDE_DIRS}"
 	"${CMAKE_CURRENT_SOURCE_DIR}/secp256k1"
 	"${CMAKE_CURRENT_SOURCE_DIR}/secp256k1/include")
-target_link_libraries(Elastos.ORG.Wallet.Lib.C ${pkg-openssl_STATIC_LDFLAGS})
-target_link_libraries(Elastos.ORG.Wallet.Lib.C thirdparty)
+target_link_libraries(Elastos.ORG.Wallet.Lib.C
+	thirdparty
+	${pkg-openssl_STATIC_LDFLAGS})
 if("${CFG_TARGET_PLATFORM}" STREQUAL "Android")
 	target_link_libraries(Elastos.ORG.Wallet.Lib.C log)
 endif()
