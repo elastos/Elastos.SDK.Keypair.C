@@ -14,7 +14,7 @@ Transaction::Transaction()
 {
 }
 
-Transaction::Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs, std::string memo)
+Transaction::Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs, const std::string& memo)
     : mType(TransferAsset)
     , mPayloadVersion(0)
     , mPayload(nullptr)
@@ -208,7 +208,7 @@ void Transaction::SerializeUnsigned(ByteStream &ostream) const
     ostream.writeUint32(mLockTime);
 }
 
-void Transaction::FromJson(const nlohmann::json &jsonData)
+void Transaction::FromJson(const nlohmann::json &jsonData, const std::string& assertId)
 {
     std::vector<nlohmann::json> jUtxoInputs = jsonData["UTXOInputs"];
 
@@ -222,7 +222,7 @@ void Transaction::FromJson(const nlohmann::json &jsonData)
 
     std::vector<nlohmann::json> jTxOuputs = jsonData["Outputs"];
     for(nlohmann::json txOutput : jTxOuputs) {
-        TxOutput* output = new TxOutput();
+        TxOutput* output = new TxOutput(assertId);
         if (output) {
             output->FromJson(txOutput);
             mOutputs.push_back(output);

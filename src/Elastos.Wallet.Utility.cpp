@@ -231,12 +231,12 @@ bool verify(const char* publicKey, const void* data,
     return ECDSA65Verify_sha256(pubKey, pubKey.GetSize(), &md, mbSignedData, mbSignedData.GetSize());
 }
 
-char* generateRawTransaction(const char* transaction)
+char* generateRawTransaction(const char* transaction, const char* assertId)
 {
     if (!transaction) {
         return nullptr;
     }
-    std::string rawTransaction = ElaController::genRawTransaction(transaction);
+    std::string rawTransaction = ElaController::genRawTransaction(transaction, assertId);
 
     return getResultStrEx(rawTransaction.c_str(), rawTransaction.length());
 }
@@ -401,7 +401,7 @@ char* getMultiSignAddress(char** publicKeys, int length, int requiredSignCount)
 }
 
 char* multiSignTransaction(const char* privateKey,
-        char** publicKeys, int length, int requiredSignCount, const char* transaction)
+        char** publicKeys, int length, int requiredSignCount, const char* transaction, const char* assertId)
 {
     if (!privateKey || !transaction) {
         return nullptr;
@@ -411,17 +411,17 @@ char* multiSignTransaction(const char* privateKey,
     std::transform(publicKeys, publicKeys + length, std::back_inserter(pubKeys), opToString);
 
     std::string signedStr = ElaController::MultiSignTransaction(
-            privateKey, requiredSignCount, pubKeys, transaction);
+            privateKey, requiredSignCount, pubKeys, transaction, assertId);
     return getResultStrEx(signedStr.c_str(), signedStr.length());
 }
 
-char* serializeMultiSignTransaction(const char* transaction)
+char* serializeMultiSignTransaction(const char* transaction, const char* assertId)
 {
     if (!transaction) {
         return nullptr;
     }
 
-    std::string serialized = ElaController::SerializeTransaction(transaction);
+    std::string serialized = ElaController::SerializeTransaction(transaction, assertId);
     return getResultStrEx(serialized.c_str(), serialized.length());
 }
 

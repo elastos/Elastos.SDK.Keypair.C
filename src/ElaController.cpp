@@ -32,7 +32,7 @@ struct {
     }
 } CustomCompare;
 
-Transaction* ElaController::GenTransactionFromJson(const std::string json)
+Transaction* ElaController::GenTransactionFromJson(const std::string& json, const std::string& assertId)
 {
     nlohmann::json txJson = nlohmann::json::parse(json);
     auto jTx = txJson.find("Transactions");
@@ -49,14 +49,14 @@ Transaction* ElaController::GenTransactionFromJson(const std::string json)
         return nullptr;
     }
 
-    transaction->FromJson(jTransaction);
+    transaction->FromJson(jTransaction, assertId);
 
     return transaction;
 }
 
-std::string ElaController::genRawTransaction(const std::string jsonStr)
+std::string ElaController::genRawTransaction(const std::string& jsonStr, const std::string& assertId)
 {
-    Transaction* transaction = GenTransactionFromJson(jsonStr);
+    Transaction* transaction = GenTransactionFromJson(jsonStr, assertId);
     if (!transaction) {
         return nullptr;
     }
@@ -96,9 +96,9 @@ CMBlock ElaController::GenerateRedeemScript(std::vector<std::string> publicKeys,
     return stream.getBuffer();
 }
 
-std::string ElaController::SerializeTransaction(const std::string json)
+std::string ElaController::SerializeTransaction(const std::string& json, const std::string& assertId)
 {
-    Transaction* transaction = GenTransactionFromJson(json);
+    Transaction* transaction = GenTransactionFromJson(json, assertId);
     if (!transaction) {
         return nullptr;
     }
@@ -110,10 +110,10 @@ std::string ElaController::SerializeTransaction(const std::string json)
     return Utils::encodeHex(ostream.getBuffer());
 }
 
-std::string ElaController::MultiSignTransaction(const std::string privateKey,
-        int requiredSignCount, std::vector<std::string> publicKeys, const std::string json)
+std::string ElaController::MultiSignTransaction(const std::string& privateKey,
+        int requiredSignCount, std::vector<std::string> publicKeys, const std::string& json, const std::string& assertId)
 {
-    Transaction* transaction = GenTransactionFromJson(json);
+    Transaction* transaction = GenTransactionFromJson(json, assertId);
     if (!transaction) {
         return nullptr;
     }

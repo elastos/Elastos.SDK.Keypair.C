@@ -8,16 +8,16 @@ class ElaController
 {
 
 public:
-    static std::string genRawTransaction(const std::string json);
+    static std::string genRawTransaction(const std::string& json, const std::string& assertId);
 
     static CMBlock GenerateRedeemScript(std::vector<std::string> publicKeys, int requiredSignCount);
 
-    static std::string SerializeTransaction(const std::string json);
+    static std::string SerializeTransaction(const std::string& json, const std::string& assertId);
 
-    static std::string MultiSignTransaction(const std::string privateKey,
-            int requiredSignCount, std::vector<std::string> publicKeys, const std::string json);
+    static std::string MultiSignTransaction(const std::string& privateKey,
+            int requiredSignCount, std::vector<std::string> publicKeys, const std::string& json, const std::string& assertId);
 private:
-    static Transaction* GenTransactionFromJson(const std::string json);
+    static Transaction* GenTransactionFromJson(const std::string& json, const std::string& assertId);
 
     static std::vector<std::string> GetCoSigners(char** publicKeys, int length);
 };

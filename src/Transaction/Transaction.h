@@ -33,7 +33,7 @@ class Transaction
 public:
     Transaction();
 
-    Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs, std::string memo);
+    Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs, const std::string& memo);
 
     ~Transaction();
 
@@ -47,7 +47,7 @@ public:
 
     std::vector<CMBlock> GetPrivateKeys();
 
-    void FromJson(const nlohmann::json &jsonData);
+    void FromJson(const nlohmann::json &jsonData, const std::string& assertId);
 
     nlohmann::json ToJson();
 

@@ -24,6 +24,8 @@ extern "C" {
 #define COIN_TYPE_ELA      0
 #define COIN_TYPE_IDCHAIN  1
 
+#define ELA_ASSERT_ID   "a3d0eaa466df74983b5d7c543de6904f4c9418ead5ffd6d25814234a96db37b0"
+
 typedef struct
 {
     uint32_t fingerPrint;
@@ -175,7 +177,7 @@ bool verify(const char* publicKey, const void* data, int len, const void* signed
  *      the raw transaction data if succeeded, or nullptr if failed.
  *      if you no longer use, call freeBuf to free memory.
  */
-char* generateRawTransaction(const char* transaction);
+char* generateRawTransaction(const char* transaction, const char* assertId = ELA_ASSERT_ID);
 
 /**
  * \~English
@@ -351,7 +353,7 @@ char* getMultiSignAddress(char** publicKeys, int length, int requiredSignCount);
  *      the signed transaction data in json string if succeeded, or nullptr if failed.
  *      if you no longer use, call freeBuf to free memory.
  */
-char* multiSignTransaction(const char* privateKey, char** publicKeys, int length, int requiredSignCount, const char* transaction);
+char* multiSignTransaction(const char* privateKey, char** publicKeys, int length, int requiredSignCount, const char* transaction, const char* assertId = ELA_ASSERT_ID);
 
 /**
  * \~English
@@ -364,7 +366,7 @@ char* multiSignTransaction(const char* privateKey, char** publicKeys, int length
  *      the serialized transaction data in json string if succeeded, or nullptr if failed.
  *      if you no longer use, call freeBuf to free memory.
  */
-char* serializeMultiSignTransaction(const char* transaction);
+char* serializeMultiSignTransaction(const char* transaction, const char* assertId = ELA_ASSERT_ID);
 
 #ifdef __cplusplus
 }

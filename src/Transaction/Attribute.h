@@ -20,7 +20,7 @@ public:
     };
 
 public:
-    Attribute(std::string memo)
+    Attribute(const std::string& memo)
     {
         if (memo.empty()) {
             mUsage = Usage::Nonce;

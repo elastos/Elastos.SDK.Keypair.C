@@ -13,7 +13,7 @@ public:
         , mIndex(index)
     {}
 
-    CrossChainAsset(const std::string address, uint64_t amount, uint32_t index)
+    CrossChainAsset(const std::string& address, uint64_t amount, uint32_t index)
         : mAddress(address)
         , mAmount(0)
         , mIndex(index)
