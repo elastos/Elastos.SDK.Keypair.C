@@ -322,7 +322,7 @@ MasterPublicKey* getIdChainMasterPublicKey(const void* seed, int seedLen)
 
     BRKey idMasterKey;
     UInt256 idChainCode;
-    BRBIP32PrivKeyPath(&idMasterKey, &idChainCode, &seed, sizeof(seed), 1, 0 | BIP32_HARD);
+    BRBIP32PrivKeyPath(&idMasterKey, &idChainCode, seed, seedLen, 1, 0 | BIP32_HARD);
 
     MasterPublicKey* masterKey = getMasterPublicKey(idMasterKey, idChainCode);
 
