@@ -13,9 +13,9 @@ public:
     enum Usage {
         Nonce = 0x00,
         Script = 0x20,
-        DescriptionUrl = 0x81,
+        Memo = 0x81,
         Description = 0x90,
-        Memo = 0x91,
+        DescriptionUrl = 0x91,
         Confirmations = 0x92
     };
 
