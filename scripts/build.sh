@@ -5,17 +5,16 @@ set -o nounset
 
 CURRENT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd);
 PROJECT_DIR=$(dirname "$CURRENT_DIR")
-DEPENDS_DIR="$PROJECT_DIR/config/scripts";
+DEPENDS_DIR="$PROJECT_DIR/config";
 
-if [ ! -d "$DEPENDS_DIR" ]; then
-	git submodule init;
-	git submodule update;
-fi
+cd "$PROJECT_DIR";
+git submodule init;
+git submodule update;
 
 build_extfunc_depends()
 {
-	"$DEPENDS_DIR/build-openssl.sh" $@;
+	"$DEPENDS_DIR/scripts/build-openssl.sh" $@;
 }
 export CFG_PROJECT_DIR="$PROJECT_DIR";
-source "$DEPENDS_DIR/build.sh" $@;
+source "$DEPENDS_DIR/scripts/build.sh" $@;
 
