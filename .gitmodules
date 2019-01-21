@@ -1,3 +1,3 @@
 [submodule "config"]
 	path = config
-	url = https://github.com/mengxiaokun/Elastos.CrossCompile.Config.git
+	url = https://github.com/elastos/Elastos.SDK.CrossCompile.Config.git

@@ -4,7 +4,7 @@ services:
   build-env:
     build: .
     volumes:
-      - ..:/home/hostuser/Elastos.ORG.Wallet.Lib.C
+      - ..:/home/hostuser/Elastos.SDK.Keypair.C
       - ${ANDROID_NDK}:/home/hostuser/android-ndk
     tmpfs:
       - /tmp

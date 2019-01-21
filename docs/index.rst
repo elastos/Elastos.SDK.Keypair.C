@@ -22,7 +22,7 @@ General
 
 * `Elastos <https://elastos.org>`_
 
-* `Source Code <https://github.com/elastos/Elastos.ORG.Wallet.Lib.C>`_
+* `Source Code <https://github.com/elastos/Elastos.SDK.Keypair.C>`_
 
 
 Contents

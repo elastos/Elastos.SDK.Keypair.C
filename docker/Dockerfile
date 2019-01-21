@@ -67,5 +67,5 @@ RUN set -ex                                                                     
 
 USER hostuser
 
-VOLUME [ "/home/hostuser/Elastos.ORG.Wallet.Lib.C", "/home/hostuser/android-ndk" ]
-WORKDIR /home/hostuser/Elastos.ORG.Wallet.Lib.C
+VOLUME [ "/home/hostuser/Elastos.SDK.Keypair.C", "/home/hostuser/android-ndk" ]
+WORKDIR /home/hostuser/Elastos.SDK.Keypair.C

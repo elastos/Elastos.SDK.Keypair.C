@@ -68,7 +68,7 @@ void TestGenrateMnemonic()
 {
     printf("============= start TestGenrateMnemonic ===========\n");
 
-    const char* path = "/home/hostuser/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
+    const char* path = "/home/hostuser/Elastos.SDK.Keypair.C/src/Data/mnemonic_chinese.txt";
     char* words = readMnemonicFile(path);
     if (!words) {
         printf("read file failed\n");
@@ -122,7 +122,7 @@ void TestHDWalletAddress()
 {
     printf("============= start TestHDWalletAddress ===========\n");
 
-    const char* path = "/home/hostuser/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
+    const char* path = "/home/hostuser/Elastos.SDK.Keypair.C/src/Data/mnemonic_chinese.txt";
     char* words = readMnemonicFile(path);
     if (!words) {
         printf("read file failed\n");
@@ -178,7 +178,7 @@ void TestDid()
 {
     printf("============= start TestDid ===========\n");
 
-    const char* path = "/home/hostuser/Elastos.ORG.Wallet.Lib.C/src/Data/mnemonic_chinese.txt";
+    const char* path = "/home/hostuser/Elastos.SDK.Keypair.C/src/Data/mnemonic_chinese.txt";
     char* words = readMnemonicFile(path);
     if (!words) {
         printf("read file failed\n");

@@ -2,27 +2,27 @@ pkg_search_module(pkg-openssl REQUIRED openssl)
 message(STATUS "openssl include path: ${pkg-openssl_INCLUDE_DIRS}")
 message(STATUS "openssl library path: ${pkg-openssl_STATIC_LDFLAGS}")
 
-file( GLOB Elastos.ORG.Wallet.Lib.C-SOURCES "*.cpp" "*.c" "Transaction/*.cpp")
-file( GLOB Elastos.ORG.Wallet.Lib.C-HEADERS "Elastos.Wallet.Utility.h" )
+file( GLOB Elastos.SDK.Keypair.C-SOURCES "*.cpp" "*.c" "Transaction/*.cpp")
+file( GLOB Elastos.SDK.Keypair.C-HEADERS "Elastos.Wallet.Utility.h" )
 
-add_library(Elastos.ORG.Wallet.Lib.C)
-target_sources(Elastos.ORG.Wallet.Lib.C PRIVATE
-	${Elastos.ORG.Wallet.Lib.C-SOURCES}
+add_library(Elastos.SDK.Keypair.C)
+target_sources(Elastos.SDK.Keypair.C PRIVATE
+	${Elastos.SDK.Keypair.C-SOURCES}
 	$<TARGET_OBJECTS:thirdparty>)
-target_include_directories(Elastos.ORG.Wallet.Lib.C PRIVATE
+target_include_directories(Elastos.SDK.Keypair.C PRIVATE
 	"${pkg-openssl_INCLUDE_DIRS}"
 	"${CMAKE_CURRENT_SOURCE_DIR}/secp256k1"
 	"${CMAKE_CURRENT_SOURCE_DIR}/secp256k1/include")
-target_link_libraries(Elastos.ORG.Wallet.Lib.C
+target_link_libraries(Elastos.SDK.Keypair.C
 	thirdparty
 	${pkg-openssl_STATIC_LDFLAGS})
 if("${CFG_TARGET_PLATFORM}" STREQUAL "Android")
-	target_link_libraries(Elastos.ORG.Wallet.Lib.C log)
+	target_link_libraries(Elastos.SDK.Keypair.C log)
 endif()
 
-set_target_properties(Elastos.ORG.Wallet.Lib.C PROPERTIES PUBLIC_HEADER "${Elastos.ORG.Wallet.Lib.C-HEADERS}")
-install(TARGETS Elastos.ORG.Wallet.Lib.C
+set_target_properties(Elastos.SDK.Keypair.C PROPERTIES PUBLIC_HEADER "${Elastos.SDK.Keypair.C-HEADERS}")
+install(TARGETS Elastos.SDK.Keypair.C
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib
 		ARCHIVE DESTINATION lib
-		PUBLIC_HEADER DESTINATION include/Elastos.ORG.Wallet.Lib.C)
+		PUBLIC_HEADER DESTINATION include/Elastos.SDK.Keypair.C)

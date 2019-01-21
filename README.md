@@ -1,6 +1,6 @@
 # Elastos.Wallet.Lib.C
 
-[Elastos.ORG.Wallet.Lib.C documentation](https://elastoswalletlibc.readthedocs.io)
+[Elastos.SDK.Keypair.C documentation](https://elastoswalletlibc.readthedocs.io)
 
 ## Use dockerized Untuntu_64bit build environment
 
