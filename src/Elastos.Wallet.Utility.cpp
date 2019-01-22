@@ -11,6 +11,14 @@
 #include "BRAddress.h"
 #include "BRBase58.h"
 
+const int EXTERNAL_CHAIN    = 0;
+const int INTERNAL_CHAIN    = 1;
+
+const int  COIN_TYPE_ELA    = 0;
+const int COIN_TYPE_IDCHAIN = 1;
+
+const char* ELA_ASSERT_ID   = "a3d0eaa466df74983b5d7c543de6904f4c9418ead5ffd6d25814234a96db37b0";
+
 static char* getResultStrEx(const char* src, int len)
 {
     char* key = (char*)malloc(sizeof(char) * (len + 1));

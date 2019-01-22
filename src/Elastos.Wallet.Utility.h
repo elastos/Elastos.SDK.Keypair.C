@@ -13,25 +13,25 @@ extern "C" {
  * \~English
  * Indicate the external chain.
  */
-#define EXTERNAL_CHAIN     0
+extern const int EXTERNAL_CHAIN;
 
 /**
  * \~English
  * Indicate the internal chain.
  */
-#define INTERNAL_CHAIN     1
+extern const int INTERNAL_CHAIN;
 
-#define COIN_TYPE_ELA      0
-#define COIN_TYPE_IDCHAIN  1
+extern const int COIN_TYPE_ELA;
+extern const int COIN_TYPE_IDCHAIN;
 
-#define ELA_ASSERT_ID   "a3d0eaa466df74983b5d7c543de6904f4c9418ead5ffd6d25814234a96db37b0"
+extern const char* ELA_ASSERT_ID;
 
-typedef struct
+struct MasterPublicKey
 {
     uint32_t fingerPrint;
     uint8_t chainCode[32];
     uint8_t publicKey[33];
-} MasterPublicKey;
+} ;
 
 /**
  * \~English
