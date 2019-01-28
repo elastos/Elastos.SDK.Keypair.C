@@ -7,15 +7,17 @@ file( GLOB Elastos.SDK.Keypair.C-HEADERS "Elastos.Wallet.Utility.h" )
 
 add_library(Elastos.SDK.Keypair.C)
 target_sources(Elastos.SDK.Keypair.C PRIVATE
-	${Elastos.SDK.Keypair.C-SOURCES}
+	${Elastos.SDK.Keypair.C-SOURCES})
+target_sources(Elastos.SDK.Keypair.C PRIVATE
 	$<TARGET_OBJECTS:thirdparty>)
 target_include_directories(Elastos.SDK.Keypair.C PRIVATE
 	"${pkg-openssl_INCLUDE_DIRS}"
 	"${CMAKE_CURRENT_SOURCE_DIR}/secp256k1"
 	"${CMAKE_CURRENT_SOURCE_DIR}/secp256k1/include")
-target_link_libraries(Elastos.SDK.Keypair.C
-	thirdparty
+target_link_libraries(Elastos.SDK.Keypair.C PUBLIC
 	${pkg-openssl_STATIC_LDFLAGS})
+target_link_libraries(Elastos.SDK.Keypair.C PRIVATE
+    thirdparty)
 if("${CFG_TARGET_PLATFORM}" STREQUAL "Android")
 	target_link_libraries(Elastos.SDK.Keypair.C log)
 endif()
