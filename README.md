@@ -1,4 +1,4 @@
-# Elastos.Wallet.Lib.C
+# Elastos.SDK.Keypair.C
 
 [Elastos.SDK.Keypair.C documentation](https://elastoswalletlibc.readthedocs.io)
 
@@ -34,28 +34,19 @@ Make sure your computer have installed the required packages below:
 * [git](https://www.git-scm.com/downloads)
 * [cmake](https://cmake.org/download)
 * [wget](https://www.gnu.org/software/wget)
+* clang 8.0.0 or newer version.
 
 ### Build for linux
 
+
 ```shell
-$ cd build
-$ . ./linux.sh
-$ mkdir linux
-$ cd linux
-$ cmake -D CMAKE_BUILD_TYPE=Debug/Release ../..
-$ make
+$ ./script/build.sh
 ```
 
 ### Build for android
 
 ```shell
-$ export ANDROID_NDK=~/your_android_ndk_dir
-$ cd build
-$ . ./android armeavi-v7a(for armv7)/arm64(for armv8)/x86
-$ mkdir android
-$ cd android
-$ cmake -D CMAKE_BUILD_TYPE=Debug/Release ../..
-$ make
+$ ./script/build.sh -f Android
 ```
 
 
@@ -63,39 +54,9 @@ $ make
 ### Build for ios simulator
 
 ```shell
-$ cd build
-$ . ./ios.sh x86_64
-$ cd ios
-$ cmake -D CMAKE_BUILD_TYPE=Debug/Release ../..
-$ make -j4
+$ ./script/build.sh
 ```
 
-## Build API Docs
+## Build script
 
-### Install Pre-Requirements
-
-#### Ubuntu
-
-```shell
-$ sudo apt-get update
-$ sudo apt-get install python-pip
-$ sudo pip install -U Sphinx
-$ sudo pip install sphinx_rtd_theme
-```
-
-#### Mac
-
-```shell
-$ brew install python-sphinx
-$ pip install -U Sphinx
-$ pip install sphinx_rtd_theme
-```
-
-#### 2. Build
-
-Run the command under the directory where runs your building commands:
-
-```shell
-$ cd docs
-$ make html
-```
+./script/build.sh -h for more infomation.
