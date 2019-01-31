@@ -59,4 +59,4 @@ $ ./script/build.sh
 
 ## Build script
 
-./script/build.sh -h for more infomation.
+./script/build.sh -h for more information.
