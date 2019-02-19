@@ -178,7 +178,7 @@ void TestDid()
 {
     printf("============= start TestDid ===========\n");
 
-    const char* path = "/home/hostuser/Elastos.SDK.Keypair.C/src/Data/mnemonic_chinese.txt";
+    const char* path = "/Users/huahua/repo/Elastos.SDK.Keypair.C/src/Data/mnemonic_chinese.txt";
     char* words = readMnemonicFile(path);
     if (!words) {
         printf("read file failed\n");
@@ -193,14 +193,14 @@ void TestDid()
     free(words);
 
 
-    MasterPublicKey* masterPublicKey = getIdChainMasterPublicKey(seed, seedLen);
+    MasterPublicKey* masterPublicKey = getMasterPublicKey(seed, seedLen, COIN_TYPE_ELA);
     int count = 10;
     char* privateKeys[count];
     char* publicKeys[count];
     char* addresses[count];
     for (int i = 0; i < count; i++) {
-        privateKeys[i] = generateIdChainSubPrivateKey(seed, seedLen, 0, i);
-        publicKeys[i] = generateIdChainSubPublicKey(masterPublicKey, 0, i);
+        privateKeys[i] = generateSubPrivateKey(seed, seedLen, COIN_TYPE_ELA, EXTERNAL_CHAIN, i);
+        publicKeys[i] = generateSubPublicKey(masterPublicKey, EXTERNAL_CHAIN, i);
         addresses[i] = getDid(publicKeys[i]);
 
         printf("private key %d: %s\n", i, privateKeys[i]);

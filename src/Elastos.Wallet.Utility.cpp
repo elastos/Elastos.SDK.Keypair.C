@@ -322,64 +322,6 @@ bool isAddressValid(const char* address)
     return r;
 }
 
-MasterPublicKey* getIdChainMasterPublicKey(const void* seed, int seedLen)
-{
-    if (!seed || seedLen <= 0) {
-        return nullptr;
-    }
-
-    BRKey idMasterKey;
-    UInt256 idChainCode;
-    BRBIP32PrivKeyPath(&idMasterKey, &idChainCode, seed, seedLen, 1, 0 | BIP32_HARD);
-
-    MasterPublicKey* masterKey = getMasterPublicKey(idMasterKey, idChainCode);
-
-    var_clean(&idChainCode);
-
-    return masterKey;
-}
-
-char* generateIdChainSubPrivateKey(const void* seed, int seedLen, int purpose, int index)
-{
-    if (!seed || seedLen <= 0) {
-        return nullptr;
-    }
-
-    BRKey key;
-    UInt256 chainCode;
-    BRBIP32PrivKeyPath(&key, &chainCode, seed, seedLen, 3, 0 | BIP32_HARD, purpose, index);
-
-    var_clean(&chainCode);
-
-    std::string keyStr = Utils::UInt256ToString(key.secret);
-
-    return getResultStrEx(keyStr.c_str(), keyStr.length());
-}
-
-char* generateIdChainSubPublicKey(const MasterPublicKey* masterPublicKey, int purpose, int index)
-{
-    if (!masterPublicKey) {
-        return nullptr;
-    }
-
-    BRMasterPubKey* brPublicKey = toBRMasterPubKey(masterPublicKey);
-    if (!brPublicKey) {
-        return nullptr;
-    }
-
-    uint8_t pubKey[BRBIP32PubKey(NULL, 0, *brPublicKey, purpose, index)];
-    size_t len = BRBIP32PubKey(pubKey, sizeof(pubKey), *brPublicKey, purpose, index);
-
-    delete brPublicKey;
-
-    BRKey rawKey;
-    BRKeySetPubKey(&rawKey, pubKey, len);
-    CMBlock cbPubKey;
-    cbPubKey.SetMemFixed(rawKey.pubKey, len);
-
-    return getResultStr(cbPubKey);
-}
-
 char* getDid(const char* publicKey)
 {
     return getAddressEx(publicKey, ELA_IDCHAIN);

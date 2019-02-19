@@ -17,6 +17,14 @@ Constants
 
   Indicate the internal chain.
 
+.. c:macro:: COIN_TYPE_ELA
+
+  Indicate the coin type ela.
+
+.. c:macro:: ELA_ASSERT_ID
+
+  The ela assert id.
+
 .. api:
 
 APIs
@@ -253,60 +261,6 @@ isAddressValid
 
   **Parameter**
     :[in] address: the address.
-
-
-getIdChainMasterPublicKey
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. c:function:: MasterPublicKey* getIdChainMasterPublicKey(const void* seed, int seedLen)
-
-  Get ID chain master public key.
-
-  **Return**
-    the master public key of ID chain if succeeded, or nullptr if failed.
-
-    *if you no longer use, delete the pointer of MasterPublicKey.*
-
-  **Parameter**
-    :[in] seed: binary conent of seed.
-    :[in] seedLen: the length of seed.
-
-
-generateIdChainSubPrivateKey
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. c:function:: char* generateIdChainSubPrivateKey(const void* seed, int seedLen, int purpose, int index)
-
-  Generate ID chain sub private key.
-
-  **Return**
-    the sub private key of ID chain if succeeded, or nullptr if failed.
-
-    *if you no longer use, call freeBuf to free memory.*
-
-  **Parameter**
-    :[in] seed: binary conent of seed.
-    :[in] seedLen: the length of seed.
-    :[in] purpose: the purpose.
-    :[in] index: the index of the key.
-
-
-generateIdChainSubPublicKey
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. c:function:: char* generateIdChainSubPublicKey(const MasterPublicKey* masterPublicKey, int purpose, int index)
-
-  Generate ID chain sub private key.
-
-  **Return**
-    the sub public key of ID chain if succeeded, or nullptr if failed.
-
-    *if you no longer use, call freeBuf to free memory.*
-
-  **Parameter**
-    :[in] masterPublicKey: the master public key of ID chain.
-    :[in] purpose: the purpose.
-    :[in] index: the index of the key.
 
 
 getDid
