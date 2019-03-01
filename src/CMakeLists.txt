@@ -19,7 +19,7 @@ target_link_libraries(Elastos.SDK.Keypair.C PUBLIC
 target_link_libraries(Elastos.SDK.Keypair.C PRIVATE
     thirdparty)
 if("${CFG_TARGET_PLATFORM}" STREQUAL "Android")
-	target_link_libraries(Elastos.SDK.Keypair.C log)
+    target_link_libraries(Elastos.SDK.Keypair.C PRIVATE log)
 endif()
 
 set_target_properties(Elastos.SDK.Keypair.C PROPERTIES PUBLIC_HEADER "${Elastos.SDK.Keypair.C-HEADERS}")
