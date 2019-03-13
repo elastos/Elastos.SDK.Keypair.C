@@ -184,6 +184,70 @@ generateRawTransaction
     :[in] transaction: the transaction data in json string.
 
 
+  sample of transaction:
+
+  normal transaction
+.. sourcecode:: json
+  {
+    "Transactions": [
+        {
+            "UTXOInputs": [
+                {
+                    "address": "ELbKQrj8DTYn2gU7KBejcNWb4ix4EAGDmy",
+                    "txid": "378941ffe7ad7a25ae90db35142ba131dd7a1f9344a951851f4e051754d38577",
+                    "index": 0,
+                    "privateKey": {privateKey}
+                }
+            ],
+            "Fee": 100,
+            "Outputs": [
+                {
+                    "amount": 100,
+                    "address": "ELbKQrj8DTYn2gU7KBejcNWb4ix4EAGDmy"
+                },
+                {
+                    "amount": 11810,
+                    "address": "ELbKQrj8DTYn2gU7KBejcNWb4ix4EAGDmy"
+                }
+            ]
+        }
+    ]
+  }
+
+  vote transaction
+.. sourcecode:: json
+  {
+    "Transactions": [
+        {
+            "UTXOInputs": [
+                {
+                    "address": "ELbKQrj8DTYn2gU7KBejcNWb4ix4EAGDmy",
+                    "txid": "378941ffe7ad7a25ae90db35142ba131dd7a1f9344a951851f4e051754d38577",
+                    "index": 0,
+                    "privateKey": {privateKey}
+                }
+            ],
+            "Fee": 100,
+            "Outputs": [
+                {
+                    "amount": 100,
+                    "address": "ELbKQrj8DTYn2gU7KBejcNWb4ix4EAGDmy",
+                    "payload":
+                        {
+                            "type": "delegate",
+                            "candidatePublicKeys": ["033c495238ca2b6bb8b7f5ae172363caea9a55cf245ffb3272d078126b1fe3e7cd"]
+                        }
+                },
+                {
+                    "amount": 11810,
+                    "address": "ELbKQrj8DTYn2gU7KBejcNWb4ix4EAGDmy"
+                }
+            ]
+        }
+    ]
+  }
+
+
 generateSubPrivateKey
 ~~~~~~~~~~~~~~~~~~~~~~~
 
