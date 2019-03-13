@@ -5,7 +5,8 @@
 #include "../log.h"
 
 Transaction::Transaction()
-    : mType(TransferAsset)
+    : mTxVersion(0)
+    , mType(TransferAsset)
     , mPayloadVersion(0)
     , mPayload(nullptr)
     , mLockTime(TX_LOCKTIME)
@@ -15,7 +16,8 @@ Transaction::Transaction()
 }
 
 Transaction::Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs, const std::string& memo)
-    : mType(TransferAsset)
+    : mTxVersion(0)
+    , mType(TransferAsset)
     , mPayloadVersion(0)
     , mPayload(nullptr)
     , mInputs(inputs)
@@ -178,6 +180,10 @@ std::vector<CMBlock> Transaction::GetPrivateKeys()
 
 void Transaction::SerializeUnsigned(ByteStream &ostream) const
 {
+    if (mTxVersion != 0) {
+        ostream.writeBytes(&mTxVersion, 1);
+    }
+
     ostream.writeBytes(&mType, 1);
 
     ostream.writeBytes(&mPayloadVersion, 1);
@@ -202,7 +208,7 @@ void Transaction::SerializeUnsigned(ByteStream &ostream) const
 
     ostream.writeVarUint(mOutputs.size());
     for (size_t i = 0; i < mOutputs.size(); i++) {
-        mOutputs[i]->Serialize(ostream);
+        mOutputs[i]->Serialize(ostream, mTxVersion);
     }
 
     ostream.writeUint32(mLockTime);
@@ -226,6 +232,13 @@ void Transaction::FromJson(const nlohmann::json &jsonData, const std::string& as
         if (output) {
             output->FromJson(txOutput);
             mOutputs.push_back(output);
+        }
+    }
+
+    for (TxOutput* output : mOutputs) {
+        if (output->GetVersion() == 9) {
+            mTxVersion = 9;
+            break;
         }
     }
 

@@ -57,6 +57,7 @@ private:
     CMBlock SignData(const CMBlock& privateKey);
 
 private:
+    uint8_t mTxVersion;
     Type mType;
     uint8_t mPayloadVersion;
     void* mPayload;
