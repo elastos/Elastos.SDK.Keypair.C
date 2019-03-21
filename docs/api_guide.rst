@@ -415,7 +415,7 @@ eciesEncrypt
     :[in] plainText: data to be encrypted.
 
 
-eciesEncrypt
+eciesDecrypt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. c:function:: char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len)
@@ -431,3 +431,4 @@ eciesEncrypt
     :[in] privateKey: private key of the encrypt public key.
     :[in] cipherText: the encyrpted data.
     :[out] len: the decrypted data length.
+
