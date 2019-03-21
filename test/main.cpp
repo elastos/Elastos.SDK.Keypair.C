@@ -273,12 +273,39 @@ void cosignTxData()
     printf("============= end cosignTxData ===========\n\n");
 }
 
+void Crypto(const char* plainText)
+{
+    const char* publicKey = "02bc11aa5c35acda6f6f219b94742dd9a93c1d11c579f98f7e3da05ad910a48306";
+    const char* privateKey = "543c241f89bebb660157bcd12d7ab67cf69f3158240a808b22eb98447bad205d";
+
+    char* cipher = eciesEncrypt(publicKey, plainText);
+    if (cipher == NULL) {
+        printf("ecies encrypt error\n");
+        return;
+    }
+
+    printf("cipher: %s\n", cipher);
+
+    int len;
+    char* decrypted = eciesDecrypt(privateKey, cipher, &len);
+    if (decrypted == NULL) {
+        printf("ecies decrypt error\n");
+        free(cipher);
+        return;
+    }
+
+    printf("plain: %s\n", decrypted);
+    free(cipher);
+    free(decrypted);
+}
+
 const char *c_help = \
     "genmne    test generate mnemonic, get private key, public key, address.\n" \
     "hd        test generate hd wallet address.\n" \
     "did       test generate did.\n"
     "sign      test generate raw transaction.\n" \
     "cosign    test cosign raw transaction.\n" \
+    "crypto    test encrytion and decryption.\n" \
     "help      show help message.\n" \
     "exit      exit the test program.\n" \
     "\n";
@@ -316,6 +343,12 @@ int main(int argc, char *argv[])
         }
         else if (!command.compare("memo")) {
             SignMemo();
+        }
+        else if (!command.compare("crypto")) {
+            std::string text;
+            std::cout << "input data: ";
+            std::getline(std::cin, text);
+            Crypto(text.c_str());
         }
         else if (!command.compare("vmemo")) {
             verifyMemo();

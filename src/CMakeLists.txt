@@ -2,7 +2,7 @@ pkg_search_module(pkg-openssl REQUIRED openssl)
 message(STATUS "openssl include path: ${pkg-openssl_INCLUDE_DIRS}")
 message(STATUS "openssl library path: ${pkg-openssl_STATIC_LDFLAGS}")
 
-file( GLOB Elastos.SDK.Keypair.C-SOURCES "*.cpp" "*.c" "Transaction/*.cpp")
+file( GLOB Elastos.SDK.Keypair.C-SOURCES "*.cpp" "*.c" "Transaction/*.cpp" "crypto/*.c")
 file( GLOB Elastos.SDK.Keypair.C-HEADERS "Elastos.Wallet.Utility.h" )
 
 add_library(Elastos.SDK.Keypair.C)

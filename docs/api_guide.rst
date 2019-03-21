@@ -397,3 +397,37 @@ serializeMultiSignTransaction
   **Parameter**
     :[in] transaction: the transaction data in json string.
 
+
+eciesEncrypt
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. c:function:: char* eciesEncrypt(const char* publicKey, const char* plainText)
+
+  Encrypt the input data by public key.
+
+  **Return**
+    Encrypted data if succeeded, or nullptr if failed.
+
+    *if you no longer use, call freeBuf to free memory.*
+
+  **Parameter**
+    :[in] publicKey: public key.
+    :[in] plainText: data to be encrypted.
+
+
+eciesEncrypt
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. c:function:: char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len)
+
+  Decrypt the data by private key.
+
+  **Return**
+    The decrypted data if succeeded, or nullptr if failed.
+
+    *if you no longer use, call freeBuf to free memory.*
+
+  **Parameter**
+    :[in] privateKey: private key of the encrypt public key.
+    :[in] cipherText: the encyrpted data.
+    :[out] len: the decrypted data length.

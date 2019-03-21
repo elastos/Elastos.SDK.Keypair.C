@@ -10,6 +10,7 @@
 #include "BRBIP39Mnemonic.h"
 #include "BRAddress.h"
 #include "BRBase58.h"
+#include "crypto/ecies.h"
 
 const int EXTERNAL_CHAIN    = 0;
 const int INTERNAL_CHAIN    = 1;
@@ -375,3 +376,67 @@ char* serializeMultiSignTransaction(const char* transaction, const char* assertI
     return getResultStrEx(serialized.c_str(), serialized.length());
 }
 
+char* eciesEncrypt(const char* publicKey, const char* plainText)
+{
+    if (!publicKey || !plainText) {
+        return nullptr;
+    }
+
+    cipher_t* cipher = ecies_encrypt(publicKey, (const unsigned char *)plainText, strlen(plainText));
+    if (cipher == nullptr) {
+        return nullptr;
+    }
+    uint64_t keyLen = get_cipher_length(CipherType_Key, cipher);
+    uint64_t macLen = get_cipher_length(CipherType_MAC, cipher);
+    uint64_t origLen = get_cipher_length(CipherType_Orig, cipher);
+    uint64_t bodyLen = get_cipher_length(CipherType_Body, cipher);
+    printf("body: %llu\n", bodyLen);
+
+    ByteStream ostream;
+    ostream.putVarUint(keyLen);
+    ostream.putVarUint(macLen);
+    ostream.putVarUint(origLen);
+    ostream.putVarUint(bodyLen);
+
+    ostream.writeBytes(get_cipher_data(CipherType_Key, cipher), keyLen);
+    ostream.writeBytes(get_cipher_data(CipherType_MAC, cipher), macLen);
+    ostream.writeBytes(get_cipher_data(CipherType_Body, cipher), bodyLen);
+
+    cipher_free(cipher);
+
+    std::string result = Utils::encodeHex(ostream.getBuffer());
+
+    return getResultStrEx(result.c_str(), result.length());
+}
+
+char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len)
+{
+    if (!privateKey || !cipherText || !len) {
+        return nullptr;
+    }
+
+    CMBlock data = Utils::decodeHex(cipherText);
+    ByteStream ostream(data, data.GetSize(), false);
+    uint64_t keyLen = ostream.getVarUint();
+    uint64_t macLen = ostream.getVarUint();
+    uint64_t origLen = ostream.getVarUint();
+    uint64_t bodyLen = ostream.getVarUint();
+
+    cipher_t* cipher = (cipher_t*)cipher_alloc(keyLen, macLen, origLen, bodyLen);
+    if (!cipher) {
+        return nullptr;
+    }
+
+    void* key = get_cipher_data(CipherType_Key, cipher);
+    ostream.readBytes(key, keyLen);
+
+    void* mac = get_cipher_data(CipherType_MAC, cipher);
+    ostream.readBytes(mac, macLen);
+
+    void* body = get_cipher_data(CipherType_Body, cipher);
+    ostream.readBytes(body, bodyLen);
+
+    char* plain = (char*)ecies_decrypt(privateKey, cipher, (size_t*)len);
+    cipher_free(cipher);
+    return plain;
+}
