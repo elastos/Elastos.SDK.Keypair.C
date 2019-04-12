@@ -317,6 +317,8 @@ char* multiSignTransaction(const char* privateKey, char** publicKeys, int length
  */
 char* serializeMultiSignTransaction(const char* transaction, const char* assertId = ELA_ASSERT_ID);
 
+char** getSignedSingers(const char* transaction, int* outLen, const char* assertId = ELA_ASSERT_ID);
+
 char* eciesEncrypt(const char* publicKey, const char* plainText);
 
 char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len);

@@ -133,3 +133,15 @@ std::string ElaController::MultiSignTransaction(const std::string& privateKey,
     return jsonData.dump();
 }
 
+std::vector<std::string> ElaController::GetSignedSigners(const std::string& json, const std::string& assertId)
+{
+    Transaction* transaction = GenTransactionFromJson(json, assertId);
+    if (!transaction) {
+        return std::vector<std::string>();
+    }
+
+    std::vector<std::string> signers = transaction->GetSignedSigner();
+    delete transaction;
+
+    return signers;
+}

@@ -3,6 +3,9 @@
 #include "../BRCrypto.h"
 #include "../BRBIP32Sequence.h"
 #include "../log.h"
+#include "../BRAddress.h"
+
+#define SIGNATURE_SCRIPT_LENGTH     65
 
 Transaction::Transaction()
     : mTxVersion(0)
@@ -81,13 +84,6 @@ void Transaction::Serialize(ByteStream &ostream)
 
 CMBlock Transaction::SignData(const CMBlock& privateKey)
 {
-    ByteStream ostream;
-    SerializeUnsigned(ostream);
-    CMBlock data = ostream.getBuffer();
-
-    printf("unsigned data: ");
-    Utils::printBinary(data, data.GetSize());
-
     CMBlock publicKey;
     publicKey.Resize(33);
     getPubKeyFromPrivKey(publicKey, (UInt256 *)(uint8_t *)privateKey);
@@ -95,8 +91,7 @@ CMBlock Transaction::SignData(const CMBlock& privateKey)
     printf("sign public key: ");
     Utils::printBinary(publicKey, publicKey.GetSize());
 
-    CMBlock shaData(sizeof(UInt256));
-    BRSHA256(shaData, data, data.GetSize());
+    CMBlock shaData = GetSHAData();
 
     CMBlock signedData;
     signedData.Resize(65);
@@ -106,6 +101,20 @@ CMBlock Transaction::SignData(const CMBlock& privateKey)
     printf("signed data: ");
     Utils::printBinary(signedData, signedData.GetSize());
     return signedData;
+}
+
+CMBlock Transaction::GetSHAData()
+{
+    ByteStream ostream;
+    SerializeUnsigned(ostream);
+    CMBlock data = ostream.getBuffer();
+
+    printf("unsigned data: ");
+    Utils::printBinary(data, data.GetSize());
+
+    CMBlock shaData(sizeof(UInt256));
+    BRSHA256(shaData, data, data.GetSize());
+    return shaData;
 }
 
 void Transaction::Sign(const CMBlock & privateKey)
@@ -147,6 +156,60 @@ void Transaction::MultiSign(const CMBlock& privateKey, const CMBlock& redeemScri
     CMBlock signedData = SignData(privateKey);
     stream.putBytes(signedData, signedData.GetSize());
     mPrograms[0]->mParameter = stream.getBuffer();
+}
+
+std::vector<std::string> Transaction::GetSignedSigner()
+{
+    if (mPrograms.size() > 1) {
+        WALLET_C_LOG("not multi sign transaction!\n");
+        return std::vector<std::string>();
+    }
+
+    if (mPrograms.size() == 0) {
+        WALLET_C_LOG("transaction not signed!\n");
+        return std::vector<std::string>();
+    }
+
+    Program* program = mPrograms[0];
+    const CMBlock& code = program->GetCode();
+    if (code[code.GetSize() - 1] != ELA_MULTISIG) {
+        WALLET_C_LOG("not multi sign transaction!\n");
+        return std::vector<std::string>();
+    }
+
+    std::vector<std::string> signers;
+    for (int i = 1; i < code.GetSize() - 2;) {
+        uint8_t size = code[i];
+        signers.push_back(Utils::encodeHex(&code[i + 1], size));
+        i += size + 1;
+    }
+
+    CMBlock shaData = GetSHAData();
+    UInt256 md;
+    memcpy(md.u8, shaData, sizeof(UInt256));
+
+    const CMBlock &parameter = program->GetParameter();
+    std::vector<std::string> signedSigners;
+
+    for (int i = 0; i < parameter.GetSize(); i += SIGNATURE_SCRIPT_LENGTH) {
+        CMBlock signature(SIGNATURE_SCRIPT_LENGTH);
+        memcpy(signature, &parameter[i], SIGNATURE_SCRIPT_LENGTH);
+
+        for (std::string signer : signers) {
+
+            if (Verify(signer, md, signature))
+                signedSigners.push_back(signer);
+        }
+    }
+
+    return signedSigners;
+}
+
+bool Transaction::Verify(const std::string& publicKey, const UInt256& messageDigest, const CMBlock& signature)
+{
+    CMBlock pubKey = Utils::decodeHex(publicKey);
+    return ECDSA65Verify_sha256((uint8_t *) (void *) pubKey, pubKey.GetSize(), &messageDigest, signature,
+                                signature.GetSize()) != 0;
 }
 
 std::vector<CMBlock> Transaction::GetPrivateKeys()

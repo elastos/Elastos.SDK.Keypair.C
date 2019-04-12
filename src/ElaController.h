@@ -16,6 +16,9 @@ public:
 
     static std::string MultiSignTransaction(const std::string& privateKey,
             int requiredSignCount, std::vector<std::string> publicKeys, const std::string& json, const std::string& assertId);
+
+    static std::vector<std::string> GetSignedSigners(const std::string& json, const std::string& assertId);
+
 private:
     static Transaction* GenTransactionFromJson(const std::string& json, const std::string& assertId);
 

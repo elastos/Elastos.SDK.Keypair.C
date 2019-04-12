@@ -366,6 +366,35 @@ char* multiSignTransaction(const char* privateKey,
     return getResultStrEx(signedStr.c_str(), signedStr.length());
 }
 
+char** getSignedSingers(const char* transaction, int* outLen, const char* assertId)
+{
+    if (!outLen) {
+        return nullptr;
+    }
+
+    std::vector<std::string> signers = ElaController::GetSignedSigners(transaction, assertId);
+    int len = signers.size();
+    if (len == 0) {
+        printf("no one signed\n");
+        return nullptr;
+    }
+
+    char** result = (char**)malloc(len);
+    if (!result) {
+        printf("out of memory\n");
+        return nullptr;
+    }
+
+    int offset = 0;
+    for (int i = 0; i < len; i++) {
+        result[i] = (char*)malloc(sizeof(char) * (66 + 1));
+        strcpy(result[i], signers[i].c_str());
+    }
+
+    *outLen = len;
+    return result;
+}
+
 char* serializeMultiSignTransaction(const char* transaction, const char* assertId)
 {
     if (!transaction) {

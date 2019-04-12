@@ -122,7 +122,7 @@ void TestHDWalletAddress()
 {
     printf("============= start TestHDWalletAddress ===========\n");
 
-    const char* path = "/home/hostuser/Elastos.SDK.Keypair.C/src/Data/mnemonic_chinese.txt";
+    const char* path = "/Users/huahua/repo/Elastos.SDK.Keypair.C/src/Data/mnemonic_chinese.txt";
     char* words = readMnemonicFile(path);
     if (!words) {
         printf("read file failed\n");
@@ -245,14 +245,14 @@ void cosignTxData()
                     \"amount\":2000000}]}]}";
 
     char* publicKeys[3] = {
-        "02bc11aa5c35acda6f6f219b94742dd9a93c1d11c579f98f7e3da05ad910a48306",
-        "031a9d45859da69dbc444723048932b8f56bb9937c5260238b4821a3b1ccfd78b6",
-        "02746aa551414e16921a3249ddd5e49923299c97102c7e7c5b9c6e81dd3949556d"
+        "031ed85c1a56e912de5562657c6d6a03cfe974aab8b62d484cea7f090dac9ff1cf",
+        "0306ee2fa3fb66e21b61ac1af9ce95271d9bb5fc902f92bd9ff6333bda552ebc64",
+        "03b8d95fa2a863dcbd44bf288040df4c6cb9d674a61c4c1e3638ac515994c777e5"
     };
 
-    const char* private1 = "543c241f89bebb660157bcd12d7ab67cf69f3158240a808b22eb98447bad205d";
-    const char* private2 = "fe7bb62ad9bed0a572bd9428574eba8d038b68ea3004d37eb7bcf3f297a2c48f";
-    const char* private3 = "404a282fec850e7b880ad65f40ffd0bdddc50d8cf3217ca65d30f5378d377991";
+    const char* private1 = "79b442f402a50c1f3026edfa160a6555c0f9c48a86d85ab103809008a913f07b";
+    const char* private2 = "37878ce7b4b509aee357996a7d0a0e0e478759be034503b7b6438356d2200973";
+    const char* private3 = "0c2e640e0e025d58f6630a0fecea2419f26bb7fea6c67cd9c32aa4f1116ef74e";
 
     char* address = getMultiSignAddress(publicKeys, 3, 2);
     printf("cosign address: %s\n", address);
@@ -262,6 +262,16 @@ void cosignTxData()
     printf("signed data1: %s\n", signedData1);
     char* signedData2 = multiSignTransaction(private3, publicKeys, 3, 2, signedData1);
     printf("signed data2: %s\n", signedData2);
+
+    int len = 0;
+    char** signedSigners = getSignedSingers(signedData1, &len);
+    if (signedSigners != nullptr) {
+        for (int i = 0; i < len; i++) {
+            printf("signed public key: %s\n", signedSigners[i]);
+            free(signedSigners[i]);
+        }
+        free(signedSigners);
+    }
 
     char* serialize = serializeMultiSignTransaction(signedData2);
     printf("serialize data: %s\n", serialize);

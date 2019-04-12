@@ -27,3 +27,13 @@ nlohmann::json Program::ToJson()
 
     return jsonData;
 }
+
+const CMBlock& Program::GetCode()
+{
+    return mCode;
+}
+
+const CMBlock& Program::GetParameter()
+{
+    return mParameter;
+}

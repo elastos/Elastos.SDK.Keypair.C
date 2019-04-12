@@ -23,6 +23,10 @@ public:
 
     nlohmann::json ToJson();
 
+    const CMBlock& GetCode();
+
+    const CMBlock& GetParameter();
+
 public:
     CMBlock mCode;
     CMBlock mParameter;

@@ -45,6 +45,8 @@ public:
 
     void MultiSign(const CMBlock& privateKey, const CMBlock& redeemScript);
 
+    std::vector<std::string> GetSignedSigner();
+
     std::vector<CMBlock> GetPrivateKeys();
 
     void FromJson(const nlohmann::json &jsonData, const std::string& assertId);
@@ -55,6 +57,10 @@ private:
     void SerializeUnsigned(ByteStream &ostream) const;
 
     CMBlock SignData(const CMBlock& privateKey);
+
+    CMBlock GetSHAData();
+
+    bool Verify(const std::string& publicKey, const UInt256& messageDigest, const CMBlock& signature);
 
 private:
     uint8_t mTxVersion;
