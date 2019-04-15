@@ -1,5 +1,5 @@
 
-#include <string>
+#include <string.h>
 
 #include <openssl/evp.h>
 #include <openssl/ssl.h>
