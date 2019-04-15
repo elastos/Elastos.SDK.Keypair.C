@@ -366,7 +366,7 @@ char* multiSignTransaction(const char* privateKey,
     return getResultStrEx(signedStr.c_str(), signedStr.length());
 }
 
-char** getSignedSingers(const char* transaction, int* outLen, const char* assertId)
+char** getSignedSigners(const char* transaction, int* outLen, const char* assertId)
 {
     if (!outLen) {
         return nullptr;
@@ -419,7 +419,7 @@ char* eciesEncrypt(const char* publicKey, const char* plainText)
     uint64_t macLen = get_cipher_length(CipherType_MAC, cipher);
     uint64_t origLen = get_cipher_length(CipherType_Orig, cipher);
     uint64_t bodyLen = get_cipher_length(CipherType_Body, cipher);
-    printf("body: %llu\n", bodyLen);
+    printf("body: %lu\n", bodyLen);
 
     ByteStream ostream;
     ostream.putVarUint(keyLen);

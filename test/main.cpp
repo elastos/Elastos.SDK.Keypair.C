@@ -264,7 +264,7 @@ void cosignTxData()
     printf("signed data2: %s\n", signedData2);
 
     int len = 0;
-    char** signedSigners = getSignedSingers(signedData1, &len);
+    char** signedSigners = getSignedSigners(signedData1, &len);
     if (signedSigners != nullptr) {
         for (int i = 0; i < len; i++) {
             printf("signed public key: %s\n", signedSigners[i]);
