@@ -33,15 +33,11 @@ char* readMnemonicFile(const char* path)
 
 void SignMemo()
 {
-    // const char* memo = "{\"userId\":\"clark\",\"phone\":\"13809011232\"}";
-    const char* memo = "68656C6C6F776F726C64";
-    const char* privateKey = "1615CC0AB02168680354E07048F9CE54B2921847F68453586C4A2DBC23BA2C9D";
+    const char* memo = "test";
+    const char* privateKey = "6c07a2510bc2ce9401607a669ed986cc78765e14515f17cfd0fa86344ff3fa31";
 
-    CMBlock data = Utils::decodeHex(memo);
-
-    // CMBlock data = Utils::convertToMemBlock(memo);
     uint8_t* signedData;
-    int signedLen = sign(privateKey, (void*)data, data.GetSize(), (void**)&signedData);
+    int signedLen = sign(privateKey, (void*)memo, strlen(memo), (void**)&signedData);
 
     CMBlock cmSigned;
     cmSigned.SetMemFixed(signedData, signedLen);
@@ -52,14 +48,13 @@ void SignMemo()
 
 void verifyMemo()
 {
-    const char* memo = "68656C6C6F776F726C64";
-    CMBlock data = Utils::decodeHex(memo);
+    const char* memo = "test";
 
-    const char* signedMemo = "1dd38b5678622a1e8614450d2995c01a75897c50aeb88d271689f57a68ba8b6f8c05305af2cc8bc98a7c53192004777050f40b996101d7bed51a25f5aed75579";
+    const char* signedMemo = "C7003C5AF54C6CB36FEC8E811D29C3B97E6C067C1B64108728678762D4338A7C57DBBAD5DF59290EB51B6E22C70DE3F591440BC55FE04EE1711BCE9145B64759";
     CMBlock signedData = Utils::decodeHex(signedMemo);
 
-    bool pass = verify("028971D6DA990971ABF7E8338FA1A81E1342D0E0FD8C4D2A4DF68F776CA66EA0B1",
-            data, data.GetSize(), signedData, signedData.GetSize());
+    bool pass = verify("03c21524ff3fd2029b944ade939c99d66a78f2db8cca8add7492b7f06b7c767cda",
+            memo, strlen(memo), signedData, signedData.GetSize());
 
     printf("verify: %d\n", pass);
 }
@@ -221,12 +216,13 @@ void TestDid()
 void signTxData(const char* data)
 {
     printf("============= start signTxData ===========\n");
-    // const char* transaction = "{\"Transactions\":[{\"UTXOInputs\":[{\
-    //                 \"txid\":\"f176d04e5980828770acadcfc3e2d471885ab7358cd7d03f4f61a9cd0c593d54\",\
-    //                 \"privateKey\":\"b6f010250b6430b2dd0650c42f243d5445f2044a9c2b6975150d8b0608c33bae\",\
-    //                 \"index\":0,\"address\":\"EeniFrrhuFgQXRrQXsiM1V4Amdsk4vfkVc\"}],\
-    //                 \"Outputs\":[{\"address\":\"EbxU18T3M9ufnrkRY7NLt6sKyckDW4VAsA\",\
-    //                 \"amount\":2000000}]}]}";
+    const char* transaction = "{\"Transactions\":[{\"UTXOInputs\":[{\
+                    \"txid\":\"f176d04e5980828770acadcfc3e2d471885ab7358cd7d03f4f61a9cd0c593d54\",\
+                    \"privateKey\":\"b6f010250b6430b2dd0650c42f243d5445f2044a9c2b6975150d8b0608c33bae\",\
+                    \"index\":0,\"address\":\"EeniFrrhuFgQXRrQXsiM1V4Amdsk4vfkVc\"}],\
+                    \"Outputs\":[{\"address\":\"EbxU18T3M9ufnrkRY7NLt6sKyckDW4VAsA\",\
+                    \"amount\":2000000}]}]}";
+
     char* signedData = generateRawTransaction(data);
     printf("signedData: %s\n", signedData);
 
