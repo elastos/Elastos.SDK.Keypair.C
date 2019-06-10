@@ -55,7 +55,15 @@ static char* getAddressEx(const char* publicKey, int signType)
         return nullptr;
     }
 
-    CMBlock pubKey = Utils::decodeHex(publicKey);
+    CMBlock pubKey;
+    try {
+        pubKey = Utils::decodeHex(publicKey);
+    }
+    catch (std::logic_error err) {
+        printf("decodeHex exception: %s", err.what());
+        return nullptr;
+    }
+
     CMBlock code = Utils::getCode(pubKey, signType);
 
     std::string redeedScript = Utils::encodeHex(code, code.GetSize());
@@ -198,7 +206,15 @@ int sign(const char* privateKey, const void* data, int len, void** signedData)
         return 0;
     }
 
-    CMBlock privKey = Utils::decodeHex(privateKey);
+    CMBlock privKey;
+    try {
+        privKey = Utils::decodeHex(privateKey);
+    }
+    catch (std::logic_error err) {
+        printf("decodeHex exception: %s", err.what());
+        return 0;
+    }
+
     UInt256 md = UINT256_ZERO;
     BRSHA256(&md, data, len);
 
@@ -226,7 +242,14 @@ bool verify(const char* publicKey, const void* data,
         return false;
     }
 
-    CMBlock pubKey = Utils::decodeHex(publicKey);
+    CMBlock pubKey;
+    try {
+        pubKey = Utils::decodeHex(publicKey);
+    }
+    catch (std::logic_error err) {
+        printf("decodeHex exception: %s", err.what());
+        return false;
+    }
 
     UInt256 md = UINT256_ZERO;
     BRSHA256(&md, data, len);
@@ -296,7 +319,15 @@ void freeBuf(void* buf)
 
 char* getPublicKeyFromPrivateKey(const char* privateKey)
 {
-    CMBlock cbPrivateKey = Utils::decodeHex(privateKey);
+    CMBlock cbPrivateKey;
+    try {
+        cbPrivateKey = Utils::decodeHex(privateKey);
+    }
+    catch (std::logic_error err) {
+        printf("decodeHex exception: %s", err.what());
+        return nullptr;
+    }
+
     BRKey key;
     memcpy(&key.secret, cbPrivateKey, cbPrivateKey.GetSize());
 
@@ -444,7 +475,15 @@ char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len)
         return nullptr;
     }
 
-    CMBlock data = Utils::decodeHex(cipherText);
+    CMBlock data;
+    try {
+        data = Utils::decodeHex(cipherText);
+    }
+    catch (std::logic_error err) {
+        printf("decodeHex exception: %s", err.what());
+        return nullptr;
+    }
+
     ByteStream ostream(data, data.GetSize(), false);
     uint64_t keyLen = ostream.getVarUint();
     uint64_t macLen = ostream.getVarUint();
