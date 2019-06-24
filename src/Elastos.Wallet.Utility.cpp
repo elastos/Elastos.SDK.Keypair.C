@@ -374,10 +374,8 @@ char* getMultiSignAddress(char** publicKeys, int length, int requiredSignCount)
     std::vector<std::string> pubKeys;
     std::transform(publicKeys, publicKeys + length, std::back_inserter(pubKeys), opToString);
     for (std::string pubkey : pubKeys) {
-        secp256k1_pubkey pk;
-        CMBlock cbA = Utils::decodeHex(pubkey);
-        if (0 == BRKeyPubKeyDecode(&pk, cbA, cbA.GetSize())) {
-            printf("Public key: %s decode error\n", pubkey.c_str());
+        if (!(pubkey.length() == 66 || pubkey.length() == 130)) {
+            printf("Invalid public key: %s\n", pubkey.c_str());
             return nullptr;
         }
     }
