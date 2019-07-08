@@ -19,5 +19,5 @@ build_extfunc_depends()
 export CFG_PROJECT_NAME="Elastos.SDK.Keypair.C";
 export CFG_PROJECT_DIR="$PROJECT_DIR";
 export CFG_CMAKELIST_DIR="$PROJECT_DIR";
-source "$DEPENDS_DIR/scripts/build.sh" $@;
+source "$DEPENDS_DIR/scripts/build.sh" $@ --force-build;
 
