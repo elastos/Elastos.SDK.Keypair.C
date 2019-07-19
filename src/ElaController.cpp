@@ -28,7 +28,7 @@ struct {
         }
         BigInteger bigIntB = dataToBigInteger(pk.data, sizeof(pk.data) / 2, BigInteger::Sign::positive);
 
-        return bigIntA <= bigIntB;
+        return bigIntA < bigIntB;
     }
 } CustomCompare;
 
