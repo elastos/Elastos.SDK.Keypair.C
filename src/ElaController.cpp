@@ -14,6 +14,8 @@
 struct {
     bool operator()(const std::string &a, const std::string &b) const
     {
+#if 0
+        // ordered by big int
         secp256k1_pubkey pk;
 
         CMBlock cbA = Utils::decodeHex(a);
@@ -29,6 +31,8 @@ struct {
         BigInteger bigIntB = dataToBigInteger(pk.data, sizeof(pk.data) / 2, BigInteger::Sign::positive);
 
         return bigIntA < bigIntB;
+#endif
+        return a < b;
     }
 } CustomCompare;
 
