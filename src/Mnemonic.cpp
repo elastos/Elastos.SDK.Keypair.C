@@ -60,19 +60,12 @@ void Mnemonic::loadLanguage(const std::string &words) {
     //     _words.push_back(line);
     // }
 
-    std::string str = words;
-    std::string pattern = "\n";
-    std::string::size_type pos;
-    str += pattern;
-    int size = str.size();
+    std::istringstream iss(words);
 
-    for (int i = 0; i < size; i++) {
-        pos = str.find("\n", i);
-        if (pos < size) {
-            std::string s = str.substr(i, pos - i);
-            _words.push_back(s);
-            i = pos;
-        }
+    std::string line;
+    while (std::getline(iss, line))
+    {
+        _words.push_back(line);
     }
 }
 

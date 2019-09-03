@@ -9,26 +9,37 @@
 
 char* readMnemonicFile(const char* path)
 {
-    FILE* file = fopen(path, "r");
-    if (!file) {
+    long lSize;
+    char * buffer;
+    size_t result;
+
+    FILE* pFile = fopen (path, "rb");
+    if (pFile == NULL) {
         return nullptr;
     }
-    char* buf = (char*)malloc(1024 * 10);
-    if (!buf) {
-        fclose(file);
+
+    // obtain file size:
+    fseek (pFile , 0 , SEEK_END);
+    lSize = ftell (pFile);
+    rewind (pFile);
+
+    // allocate memory to contain the whole file:
+    buffer = (char*) malloc(sizeof(char) * (lSize + 1));
+    if (buffer == NULL) {
+        fclose (pFile);
         return nullptr;
     }
-    int count = 0;
-    char c;
 
-    while ( (c = fgetc(file)) != EOF) {
-        buf[count++] = c;
+    // copy the file into the buffer:
+    result = fread(buffer, 1, lSize, pFile);
+    fclose (pFile);
+    if (result != lSize) {
+        return nullptr;
     }
 
-    buf[count] = '\0';
-    fclose(file);
+    buffer[lSize] = '\0';
 
-    return buf;
+    return buffer;
 }
 
 void SignMemo()
