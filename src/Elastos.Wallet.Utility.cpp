@@ -169,24 +169,14 @@ char* generateMnemonic(const char* language, const char* words)
     return getResultStrEx(phrase, phrase.GetSize());
 }
 
-int getSeedFromMnemonic(void** seed, const char* mmemonic, const char* language, const char* words, const char* mnemonicPassword)
+int getSeedFromMnemonic(void** seed, const char* mnemonic, const char* mnemonicPassword)
 {
-    if (!seed || !mmemonic || !language || !words) {
-        return 0;
-    }
-
-    CMemBlock<char> phraseData;
-    phraseData.SetMemFixed(mmemonic, strlen(mmemonic) + 1);
-
-    Mnemonic* pMnemonic = new Mnemonic(language, words);
-    if (!pMnemonic || !WalletTool::PhraseIsValid(phraseData, pMnemonic->words())) {
+    if (!seed || !mnemonic || !mnemonicPassword) {
         return 0;
     }
 
     UInt512 useed;
-    BRBIP39DeriveKey(&useed, mmemonic, mnemonicPassword);
-
-    delete pMnemonic;
+    BRBIP39DeriveKey(&useed, mnemonic, mnemonicPassword);
 
     int len = sizeof(useed);
 

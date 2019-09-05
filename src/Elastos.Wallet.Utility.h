@@ -126,7 +126,7 @@ char* generateMnemonic(const char* language, const char* words);
  * @return
  *      the seed buffer length if succeeded, or 0 if failed.
  */
-int getSeedFromMnemonic(void** seed, const char* mnemonic, const char* language, const char* words, const char* mnemonicPassword);
+int getSeedFromMnemonic(void** seed, const char* mnemonic, const char* mnemonicPassword);
 
 /**
  * \~English

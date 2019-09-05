@@ -85,7 +85,7 @@ void TestGenrateMnemonic()
     printf("mnemonic: %s\n", mnemonic);
 
     void* seed;
-    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "chinese", words, "");
+    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "");
     char* privateKey = getSinglePrivateKey(seed, seedLen);
     char* publicKey = getSinglePublicKey(seed, seedLen);
 
@@ -128,17 +128,9 @@ void TestHDWalletAddress()
 {
     printf("============= start TestHDWalletAddress ===========\n");
 
-    const char* path = "/Users/huahua/repo/Elastos.SDK.Keypair.C/src/Data/mnemonic_chinese.txt";
-    char* words = readMnemonicFile(path);
-    if (!words) {
-        printf("read file failed\n");
-        printf("============= end TestHDWalletAddress ===========\n\n");
-        return;
-    }
-
     const char* mnemonic = "督 辉 稿 谋 速 壁 阿 耗 瓷 仓 归 说";
     void* seed;
-    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "chinese", words, "");
+    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "");
     printf("=========== seed length: %d\n", seedLen);
 
     char* privateKey = getSinglePrivateKey(seed, seedLen);
@@ -152,7 +144,6 @@ void TestHDWalletAddress()
     free(privateKey);
     free(publicKey);
     free(address);
-    free(words);
 
 
     MasterPublicKey* masterPublicKey = getMasterPublicKey(seed, seedLen, COIN_TYPE_ELA);
@@ -184,20 +175,10 @@ void TestDid()
 {
     printf("============= start TestDid ===========\n");
 
-    const char* path = "/Users/huahua/repo/Elastos.SDK.Keypair.C/src/Data/mnemonic_chinese.txt";
-    char* words = readMnemonicFile(path);
-    if (!words) {
-        printf("read file failed\n");
-        printf("============= end TestDid ===========\n\n");
-        return;
-    }
-
     const char* mnemonic = "督 辉 稿 谋 速 壁 阿 耗 瓷 仓 归 说";
     void* seed;
-    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "chinese", words, "");
+    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "");
     printf("=========== seed length: %d\n", seedLen);
-    free(words);
-
 
     MasterPublicKey* masterPublicKey = getMasterPublicKey(seed, seedLen, COIN_TYPE_ELA);
     int count = 10;
