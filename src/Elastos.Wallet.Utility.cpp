@@ -52,7 +52,7 @@ static char* getPublicKeyFromPrivateKey(const BRKey& key)
 static char* getAddressEx(const char* publicKey, int signType)
 {
     if (!publicKey) {
-        return nullptr;
+        throw std::logic_error("Invalid parameter.");
     }
 
     CMBlock pubKey;
@@ -115,7 +115,7 @@ char* generateSubPrivateKey(const void* seed, int seedLen, int coinType, int cha
 char* getSinglePrivateKey(const void* seed, int seedLen)
 {
     if (!seed || seedLen <= 0) {
-        return nullptr;
+        throw std::logic_error("Invalid parameter.");
     }
 
     return generateSubPrivateKey(seed, seedLen, COIN_TYPE_ELA, EXTERNAL_CHAIN, 0);
@@ -124,7 +124,7 @@ char* getSinglePrivateKey(const void* seed, int seedLen)
 char* getSinglePublicKey(const void* seed, int seedLen)
 {
     if (!seed || seedLen <= 0) {
-        return nullptr;
+        throw std::logic_error("Invalid parameter.");
     }
 
     char* privateKey = getSinglePrivateKey(seed, seedLen);
@@ -136,7 +136,7 @@ char* getSinglePublicKey(const void* seed, int seedLen)
 MasterPublicKey* getMasterPublicKey(const void* seed, int seedLen, int coinType)
 {
     if (!seed || seedLen <= 0) {
-        return nullptr;
+        throw std::logic_error("Invalid parameter.");
     }
 
     UInt256 chainCode;
@@ -159,7 +159,7 @@ char* getAddress(const char* publicKey)
 char* generateMnemonic(const char* language, const char* words)
 {
     if (!language || !words) {
-        return nullptr;
+        throw std::logic_error("Invalid parameter.");
     }
 
     CMemBlock<uint8_t> seed128 = WalletTool::GenerateSeed128();
@@ -172,7 +172,7 @@ char* generateMnemonic(const char* language, const char* words)
 int getSeedFromMnemonic(void** seed, const char* mnemonic, const char* mnemonicPassword)
 {
     if (!seed || !mnemonic || !mnemonicPassword) {
-        return 0;
+        throw std::logic_error("Invalid parameter.");
     }
 
     UInt512 useed;
@@ -266,7 +266,7 @@ char* generateRawTransaction(const char* transaction, const char* assertId)
 char* generateSubPrivateKey(const void* seed, int seedLen, int coinType, int chain, int index)
 {
     if (!seed || seedLen <= 0) {
-        return nullptr;
+        throw std::logic_error("Invalid parameter.");
     }
 
     UInt256 chainCode;
@@ -283,12 +283,12 @@ char* generateSubPrivateKey(const void* seed, int seedLen, int coinType, int cha
 char* generateSubPublicKey(const MasterPublicKey* masterPublicKey, int chain, int index)
 {
     if (!masterPublicKey) {
-        return nullptr;
+        throw std::logic_error("Invalid parameter.");
     }
 
     BRMasterPubKey* brPublicKey = toBRMasterPubKey(masterPublicKey);
     if (!brPublicKey) {
-        return nullptr;
+        throw std::logic_error("Out of memory.");
     }
 
     size_t len = BRBIP32PubKey(NULL, 0, *brPublicKey, chain, index);
@@ -309,6 +309,10 @@ void freeBuf(void* buf)
 
 char* getPublicKeyFromPrivateKey(const char* privateKey)
 {
+    if (!privateKey) {
+        throw std::logic_error("Invalid parameter.");
+    }
+
     CMBlock cbPrivateKey;
     try {
         cbPrivateKey = Utils::decodeHex(privateKey);
@@ -357,7 +361,7 @@ static std::string opToString(char* publicKey)
 char* getMultiSignAddress(char** publicKeys, int length, int requiredSignCount)
 {
     if (!publicKeys) {
-        return nullptr;
+        throw std::logic_error("Invalid parameter.");
     }
 
     // check public key is valid
