@@ -118,7 +118,7 @@ generateMnemonic
 getSeedFromMnemonic
 ~~~~~~~~~~~~~~~~~~~
 
-.. c:function:: int getSeedFromMnemonic(void** seed, const char* mnemonic, const char* language, const char* words, const char* mnemonicPassword)
+.. c:function:: int getSeedFromMnemonic(void** seed, const char* mnemonic, const char* mnemonicPassword)
 
   Get seed from mnemonic.
 
@@ -128,8 +128,6 @@ getSeedFromMnemonic
   **Parameter**
     :[out] seed: the seed content, if no longer user, call freeBuf to free memory.
     :[in] mnemonic: mnemonic, seperated by ' '.
-    :[in] language: language, such as english, chinese etc.
-    :[in] words: the words, seperated by ' ', if the language is english, words is empty string.
     :[in] mnemonicPassword: mnemonic password, empty string or effctive password.
 
 

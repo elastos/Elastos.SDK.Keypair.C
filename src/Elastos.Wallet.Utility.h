@@ -117,10 +117,6 @@ char* generateMnemonic(const char* language, const char* words);
  * @param
  *      mnemonic            [in] mnemonic, seperated by ' '.
  * @param
- *      language            [in] language, such as english, chinese etc.
- * @param
- *      words               [in] the words, seperated by ' ', if the language is english, words is empty string.
- * @param
  *      mnemonicPassword    [in] mnemonic password, empty string or effctive password.
  *
  * @return
