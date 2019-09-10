@@ -451,7 +451,6 @@ char* eciesEncrypt(const char* publicKey, const char* plainText)
     uint64_t macLen = get_cipher_length(CipherType_MAC, cipher);
     uint64_t origLen = get_cipher_length(CipherType_Orig, cipher);
     uint64_t bodyLen = get_cipher_length(CipherType_Body, cipher);
-    printf("body: %lu\n", bodyLen);
 
     ByteStream ostream;
     ostream.putVarUint(keyLen);

@@ -20,15 +20,16 @@ public:
     };
 
 public:
-    Attribute(const std::string& memo)
+    Attribute(Usage usage, const std::string& content)
     {
-        if (memo.empty()) {
-            mUsage = Usage::Nonce;
+        mUsage = usage;
+        if (usage == Nonce)
+        {
             mData = Utils::convertToMemBlock(std::to_string(std::rand()));
         }
-        else {
-            mUsage = Usage::Memo;
-            mData = Utils::convertToMemBlock(memo);
+        else
+        {
+            mData = Utils::convertToMemBlock(content);
         }
     }
 

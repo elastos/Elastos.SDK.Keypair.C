@@ -18,24 +18,6 @@ Transaction::Transaction()
 {
 }
 
-Transaction::Transaction(std::vector<UTXOInput*> inputs, std::vector<TxOutput*> outputs, const std::string& memo)
-    : mTxVersion(0)
-    , mType(TransferAsset)
-    , mPayloadVersion(0)
-    , mPayload(nullptr)
-    , mInputs(inputs)
-    , mOutputs(outputs)
-    , mLockTime(TX_LOCKTIME)
-    , mFee(0)
-    , mTxHash(UINT256_ZERO)
-{
-    Attribute* pAttr = new Attribute(memo);
-    if (pAttr) {
-        mAttributes.push_back(pAttr);
-    }
-
-}
-
 Transaction::~Transaction()
 {
     for(UTXOInput* input : mInputs) {
@@ -321,7 +303,7 @@ void Transaction::FromJson(const nlohmann::json &jsonData, const std::string& as
     if (jAttrs != jsonData.end()) {
         std::vector<nlohmann::json> attrs = jsonData["Attributes"];
         for (nlohmann::json attribute : attrs) {
-            Attribute* pAttr = new Attribute("");
+            Attribute* pAttr = new Attribute(Attribute::Usage::Nonce, "");
             if (pAttr) {
                 pAttr->FromJson(attribute);
                 mAttributes.push_back(pAttr);
@@ -335,9 +317,22 @@ void Transaction::FromJson(const nlohmann::json &jsonData, const std::string& as
             memo = jsonData["Memo"].get<std::string>();
         }
 
-        Attribute* pAttr = new Attribute(memo);
+        Attribute* pAttr = new Attribute(memo.empty() ? Attribute::Usage::Nonce : Attribute::Usage::Memo, memo);
         if (pAttr) {
             mAttributes.push_back(pAttr);
+        }
+
+        std::string postmark;
+        auto jPostmark = jsonData.find("Postmark");
+        if (jPostmark != jsonData.end()) {
+            nlohmann::json postmarkObj = jsonData["Postmark"];
+            postmark = postmarkObj.dump();
+            postmark.insert(0, "{\"Postmark\":");
+            postmark.append("}");
+            Attribute* pAttr = new Attribute(Attribute::Usage::Description, postmark);
+            if (pAttr) {
+                mAttributes.push_back(pAttr);
+            }
         }
     }
 
