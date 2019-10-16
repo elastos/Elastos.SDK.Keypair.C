@@ -508,3 +508,34 @@ char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len)
     cipher_free(cipher);
     return plain;
 }
+
+char* getPublicKeyFromXpub(const char* xpub, int chain, int index)
+{
+    size_t size = BRBase58CheckDecode(NULL, 0, xpub);
+    uint8_t* data = (uint8_t*)malloc(size);
+    if (!data) return NULL;
+
+    BRBase58CheckDecode(data, size, xpub);
+
+    // 4 byte: version bytes (mainnet: 0x0488B21E public, 0x0488ADE4 private; testnet: 0x043587CF public, 0x04358394 private)
+    // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 derived keys, ....
+    // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
+    // 4 bytes: child number. This is ser32(i) for i in xi = xpar/i, with xi the key being serialized. (0x00000000 if master key)
+    // 32 bytes: the chain code
+    // 33 bytes: the public key or private key data (serP(K) for public keys, 0x00 || ser256(k) for private keys)
+    MasterPublicKey* masterPublicKey = new MasterPublicKey();
+    if (!masterPublicKey) {
+        free(data);
+        return NULL;
+    }
+
+    memcpy(&masterPublicKey->fingerPrint, data + 5, 4);
+    memcpy(masterPublicKey->chainCode, data + 13, 32);
+    memcpy(masterPublicKey->publicKey, data + 45, 33);
+
+    char* pubkey = generateSubPublicKey(masterPublicKey, chain, index);
+    free(data);
+    delete masterPublicKey;
+
+    return pubkey;
+}

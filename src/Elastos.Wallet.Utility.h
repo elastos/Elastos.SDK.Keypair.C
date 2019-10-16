@@ -319,6 +319,8 @@ char* eciesEncrypt(const char* publicKey, const char* plainText);
 
 char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len);
 
+char* getPublicKeyFromXpub(const char* xpub, int chain, int index);
+
 #ifdef __cplusplus
 }
 #endif
