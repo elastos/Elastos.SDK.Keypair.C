@@ -54,6 +54,7 @@ extern "C" {
 #define ELA_MULTISIG_ADDRESS         18  //0x12
 #define ELA_CROSSCHAIN_ADDRESS       75  //0x4B
 #define ELA_IDCHAIN_ADDRESS          103 //0x67
+#define ELA_DPOS_REWARD_ADDRESS      31
 #define ELA_DESTROY_ADDRESS          0
 
 // bitcoin script opcodes: https://en.bitcoin.it/wiki/Script#Constants

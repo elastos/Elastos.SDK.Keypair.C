@@ -9,11 +9,9 @@ void TxOutput::Serialize(ByteStream& ostream, uint8_t txVersion)
     ostream.writeUint32(mOutputLock);
     ostream.writeBytes(mProgramHash.u8, sizeof(mProgramHash));
 
-    if (txVersion >= 9) {
-        ostream.writeBytes(&mOutputType, 1);
-        if (mVotePayload) {
-            mVotePayload->Serialize(ostream);
-        }
+    ostream.writeBytes(&mOutputType, 1);
+    if (txVersion >= 9 && mVotePayload != nullptr) {
+        mVotePayload->Serialize(ostream);
     }
 }
 
@@ -32,6 +30,10 @@ void TxOutput::FromJson(const nlohmann::json &jsonData)
     auto jPayload = jsonData.find("payload");
     if (jPayload != jsonData.end()) {
         nlohmann::json payload = jsonData["payload"];
+        auto jType = payload.find("type");
+        if (jType == payload.end()) return;
+        std::string type = payload["type"];
+        if (type.compare("vote")) return;
 
         mOutputType = 0x01;
         mVotePayload = new VoteOutputPayload();

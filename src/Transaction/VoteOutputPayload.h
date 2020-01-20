@@ -11,7 +11,7 @@ class VoteOutputPayload
 {
 public:
     VoteOutputPayload()
-        : mVersion(0)
+        : mVersion(1)
     {}
 
     void Serialize(ByteStream& ostream);

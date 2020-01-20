@@ -13,24 +13,35 @@ void VoteOutputPayload::Serialize(ByteStream& ostream)
 
 void VoteOutputPayload::FromJson(const nlohmann::json &jsonData)
 {
-    std::string type = jsonData["type"].get<std::string>();
-    uint8_t voteType;
-    if (!type.compare("delegate")) {
-        voteType = 0;
+    auto jSuperNode = jsonData.find("candidatePublicKeys");
+    if (jSuperNode != jsonData.end()) {
+        auto candidates = jsonData["candidatePublicKeys"].get<std::vector<nlohmann::json>>();
+        VoteContent content(0);
+        content.FromJson(candidates);
+        mVoteContents.push_back(content);
     }
-    else voteType = 1;
 
-
-    std::vector<std::string> candidates = jsonData["candidatePublicKeys"].get<std::vector<std::string>>();
-    VoteContent content(voteType, candidates);
-    mVoteContents.push_back(content);
+    auto jCrc = jsonData.find("candidateCrcs");
+    if (jCrc != jsonData.end()) {
+        auto candidates = jsonData["candidateCrcs"].get<std::vector<nlohmann::json>>();
+        VoteContent content(1);
+        content.FromJson(candidates);
+        mVoteContents.push_back(content);
+    }
 }
 
 nlohmann::json VoteOutputPayload::ToJson()
 {
     nlohmann::json jsonData;
-    jsonData["type"] = mVoteContents[0].GetVoteType() == 0 ? "delegate" : "crc";
-    jsonData["candidatePublicKeys"] = mVoteContents[0].GetCandidates();
+    jsonData["type"] = "vote";
+    for (VoteContent content : mVoteContents) {
+        if (content.GetVoteType() == 0) {
+            jsonData["candidatePublicKeys"] = content.ToJson();
+        }
+        else {
+            jsonData["candidateCrcs"] = content.ToJson();
+        }
+    }
 
     return jsonData;
 }
