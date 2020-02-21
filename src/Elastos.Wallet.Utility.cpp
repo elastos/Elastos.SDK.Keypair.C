@@ -437,13 +437,13 @@ char* serializeMultiSignTransaction(const char* transaction, const char* assertI
     return getResultStrEx(serialized.c_str(), serialized.length());
 }
 
-char* eciesEncrypt(const char* publicKey, const char* plainText)
+char* eciesEncrypt(const char* publicKey, const unsigned char * plainText, int length)
 {
     if (!publicKey || !plainText) {
         return nullptr;
     }
 
-    cipher_t* cipher = ecies_encrypt(publicKey, (const unsigned char *)plainText, strlen(plainText));
+    cipher_t* cipher = ecies_encrypt(publicKey, (const unsigned char *)plainText, length);
     if (cipher == nullptr) {
         return nullptr;
     }
@@ -469,7 +469,7 @@ char* eciesEncrypt(const char* publicKey, const char* plainText)
     return getResultStrEx(result.c_str(), result.length());
 }
 
-char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len)
+unsigned char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len)
 {
     if (!privateKey || !cipherText || !len) {
         return nullptr;
@@ -504,7 +504,7 @@ char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len)
     void* body = get_cipher_data(CipherType_Body, cipher);
     ostream.readBytes(body, bodyLen);
 
-    char* plain = (char*)ecies_decrypt(privateKey, cipher, (size_t*)len);
+    unsigned char* plain = ecies_decrypt(privateKey, cipher, (size_t*)len);
     cipher_free(cipher);
     return plain;
 }

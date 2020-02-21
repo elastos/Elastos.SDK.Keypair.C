@@ -315,9 +315,9 @@ char* serializeMultiSignTransaction(const char* transaction, const char* assertI
 
 char** getSignedSigners(const char* transaction, int* outLen, const char* assertId = ELA_ASSERT_ID);
 
-char* eciesEncrypt(const char* publicKey, const char* plainText);
+char* eciesEncrypt(const char* publicKey, const unsigned char * plainText, int length);
 
-char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len);
+unsigned char* eciesDecrypt(const char* privateKey, const char* cipherText, int* len);
 
 char* getPublicKeyFromXpub(const char* xpub, int chain, int index);
 
