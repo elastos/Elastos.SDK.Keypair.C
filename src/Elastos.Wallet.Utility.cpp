@@ -504,7 +504,9 @@ unsigned char* eciesDecrypt(const char* privateKey, const char* cipherText, int*
     void* body = get_cipher_data(CipherType_Body, cipher);
     ostream.readBytes(body, bodyLen);
 
-    unsigned char* plain = ecies_decrypt(privateKey, cipher, (size_t*)len);
+    size_t plainLen = -1;
+    unsigned char* plain = ecies_decrypt(privateKey, cipher, &plainLen);
+    *len = plainLen;
     cipher_free(cipher);
     return plain;
 }
