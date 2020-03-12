@@ -276,7 +276,7 @@ void Crypto(const char* plainText)
     const char* publicKey = "02bc11aa5c35acda6f6f219b94742dd9a93c1d11c579f98f7e3da05ad910a48306";
     const char* privateKey = "543c241f89bebb660157bcd12d7ab67cf69f3158240a808b22eb98447bad205d";
 
-    char* cipher = eciesEncrypt(publicKey, plainText);
+    char* cipher = eciesEncrypt(publicKey, (unsigned char*)plainText, strlen(plainText));
     if (cipher == NULL) {
         printf("ecies encrypt error\n");
         return;
@@ -285,7 +285,7 @@ void Crypto(const char* plainText)
     printf("cipher: %s\n", cipher);
 
     int len;
-    char* decrypted = eciesDecrypt(privateKey, cipher, &len);
+    char* decrypted = (char*)eciesDecrypt(privateKey, cipher, &len);
     if (decrypted == NULL) {
         printf("ecies decrypt error\n");
         free(cipher);
