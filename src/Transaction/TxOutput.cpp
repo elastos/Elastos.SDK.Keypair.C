@@ -9,10 +9,13 @@ void TxOutput::Serialize(ByteStream& ostream, uint8_t txVersion)
     ostream.writeUint32(mOutputLock);
     ostream.writeBytes(mProgramHash.u8, sizeof(mProgramHash));
 
-    ostream.writeBytes(&mOutputType, 1);
-    if (txVersion >= 9 && mVotePayload != nullptr) {
-        mVotePayload->Serialize(ostream);
+    if (txVersion >= 9) {
+        ostream.writeBytes(&mOutputType, 1);
+        if (mVotePayload != nullptr) {
+            mVotePayload->Serialize(ostream);
+        }
     }
+
 }
 
 void TxOutput::FromJson(const nlohmann::json &jsonData)
