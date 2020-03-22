@@ -11,6 +11,17 @@ void VoteOutputPayload::Serialize(ByteStream& ostream)
     }
 }
 
+void VoteOutputPayload::Deserialize(ByteStream& ostream)
+{
+    ostream.readUint8(mVersion);
+    uint64_t len = ostream.getVarUint();
+    for (uint64_t i = 0; i < len; i++) {
+        VoteContent content(0);
+        content.Deserialize(ostream);
+        mVoteContents.push_back(content);
+    }
+}
+
 void VoteOutputPayload::FromJson(const nlohmann::json &jsonData)
 {
     auto jSuperNode = jsonData.find("candidatePublicKeys");

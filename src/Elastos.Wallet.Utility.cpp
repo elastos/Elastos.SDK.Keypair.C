@@ -263,6 +263,16 @@ char* generateRawTransaction(const char* transaction, const char* assertId)
     return getResultStrEx(rawTransaction.c_str(), rawTransaction.length());
 }
 
+char* deserializeRawTransaction(const char* transaction)
+{
+    if (!transaction) {
+        return nullptr;
+    }
+
+    std::string json =  ElaController::deserializeRawTransaction(transaction);
+    return getResultStrEx(json.c_str(), json.length());
+}
+
 char* generateSubPrivateKey(const void* seed, int seedLen, int coinType, int chain, int index)
 {
     if (!seed || seedLen <= 0) {

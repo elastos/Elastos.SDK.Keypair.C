@@ -9,6 +9,15 @@ void Attribute::Serialize(ByteStream& ostream)
     ostream.putBytes(mData, mData.GetSize());
 }
 
+void Attribute::Deserialize(ByteStream& ostream)
+{
+    mUsage = (Usage)ostream.get();
+
+    uint64_t len = ostream.getVarUint();
+    mData.Resize((int)len);
+    ostream.getBytes(mData, len);
+}
+
 void Attribute::FromJson(const nlohmann::json &jsonData)
 {
     mUsage = jsonData["usage"].get<Usage>();

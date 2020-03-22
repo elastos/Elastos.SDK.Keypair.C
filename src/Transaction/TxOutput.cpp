@@ -1,6 +1,6 @@
 
 #include "TxOutput.h"
-
+#include "BRInt.h"
 
 void TxOutput::Serialize(ByteStream& ostream, uint8_t txVersion)
 {
@@ -16,6 +16,30 @@ void TxOutput::Serialize(ByteStream& ostream, uint8_t txVersion)
         }
     }
 
+}
+
+void TxOutput::Deserialize(ByteStream& ostream, uint8_t txVersion)
+{
+    ostream.readBytes(mAssetId.u8, sizeof(mAssetId));
+    ostream.readUint64(mAmount);
+    ostream.readUint32(mOutputLock);
+    ostream.readBytes(mProgramHash.u8, sizeof(mProgramHash));
+    Utils::printBinary(mProgramHash.u8, sizeof(mProgramHash));
+
+    if (UInt168IsZero(&mProgramHash)) {
+        mAddress = DESTROY_ADDRESS;
+    }
+    else {
+        mAddress = Utils::UInt168ToAddress(mProgramHash);
+    }
+
+    if (txVersion >= 9) {
+        ostream.readUint8(mOutputType);
+        if (mOutputType == 0) return;
+        mVotePayload = new VoteOutputPayload();
+        if (!mVotePayload) return;
+        mVotePayload->Deserialize(ostream);
+    }
 }
 
 void TxOutput::FromJson(const nlohmann::json &jsonData)

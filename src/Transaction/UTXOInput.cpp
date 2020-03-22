@@ -9,6 +9,16 @@ void UTXOInput::Serialize(ByteStream& ostream)
     ostream.writeUint32(mSequence);
 }
 
+void UTXOInput::Deserialize(ByteStream& ostream)
+{
+    ostream.readBytes(mReferTxid.u8, sizeof(UInt256));
+    Utils::printBinary(mReferTxid.u8, sizeof(UInt256));
+    uint16_t index;
+    ostream.readUint16(index);
+    mReferTxOutputIndex = index;
+    ostream.readUint32(mSequence);
+}
+
 void UTXOInput::FromJson(const nlohmann::json &jsonData)
 {
     std::string txid = jsonData["txid"].get<std::string>();

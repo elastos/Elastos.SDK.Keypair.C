@@ -25,6 +25,33 @@ void VoteContent::Serialize(ByteStream& ostream)
     }
 }
 
+void VoteContent::Deserialize(ByteStream& ostream)
+{
+    ostream.readUint8(mVoteType);
+    uint64_t len = ostream.getVarUint();
+    if (mVoteType == 0) {
+        for (uint64_t i = 0; i < len; i++)  {
+             uint64_t size = ostream.getVarUint();
+             CMBlock pubKey;
+             pubKey.Resize((int)size);
+             ostream.readBytes(pubKey, size);
+             uint64_t amount;
+             ostream.readUint64(amount);
+             mCandidates.push_back(std::make_shared<Candidate>(Utils::encodeHex(pubKey), amount));
+        }
+    }
+    else {
+        for (uint64_t i = 0; i < len; i++)  {
+             uint64_t size = ostream.getVarUint();
+             UInt168 u;
+             ostream.readBytes(u.u8, size);
+             uint64_t amount;
+             ostream.readUint64(amount);
+             mCandidates.push_back(std::make_shared<Candidate>(Utils::UInt168ToAddress(u), amount));
+        }
+    }
+}
+
 uint8_t VoteContent::GetVoteType()
 {
     return mVoteType;

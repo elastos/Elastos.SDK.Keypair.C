@@ -177,6 +177,19 @@ char* generateRawTransaction(const char* transaction, const char* assertId = ELA
 
 /**
  * \~English
+ * Dnserialize raw transaction data.
+ *
+ * @param
+ *      transaction          [in] the raw transaction data in string.
+ *
+ * @return
+ *      the transaction json data if succeeded, or nullptr if failed.
+ *      if you no longer use, call freeBuf to free memory.
+ */
+char* deserializeRawTransaction(const char* transaction);
+
+/**
+ * \~English
  * Generate sub private key for HD wallet.
  *
  * @param

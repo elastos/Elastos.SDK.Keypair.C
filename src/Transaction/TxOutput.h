@@ -15,6 +15,13 @@
 class TxOutput
 {
 public:
+    TxOutput()
+        : mAmount(0)
+        , mOutputLock(0)
+        , mOutputType(0)
+        , mVotePayload(nullptr)
+    {}
+
     TxOutput(const std::string& assertId)
         : mAmount(0)
         , mOutputLock(0)
@@ -49,6 +56,8 @@ public:
     }
 
     void Serialize(ByteStream& ostream, uint8_t txVersion);
+
+    void Deserialize(ByteStream& ostream, uint8_t txVersion);
 
     void FromJson(const nlohmann::json &jsonData);
 

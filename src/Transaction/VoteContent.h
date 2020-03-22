@@ -27,6 +27,8 @@ public:
 
     void Serialize(ByteStream& ostream);
 
+    void Deserialize(ByteStream& ostream);
+
     uint8_t GetVoteType();
 
     void FromJson(const std::vector<nlohmann::json>& array);

@@ -16,6 +16,8 @@ public:
 
     void Serialize(ByteStream& ostream);
 
+    void Deserialize(ByteStream& ostream);
+
     void FromJson(const nlohmann::json &jsonData);
 
     nlohmann::json ToJson();

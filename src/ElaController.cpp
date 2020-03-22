@@ -81,6 +81,20 @@ std::string ElaController::genRawTransaction(const std::string& jsonStr, const s
     return Utils::encodeHex(ostream.getBuffer());
 }
 
+std::string ElaController::deserializeRawTransaction(const std::string& rawTx)
+{
+    Transaction* transaction = new Transaction();
+    if (!transaction) {
+        return nullptr;
+    }
+
+    transaction->Deserialize(rawTx);
+
+    auto json = transaction->ToJson();
+    delete transaction;
+    return json.dump();
+}
+
 CMBlock ElaController::GenerateRedeemScript(std::vector<std::string> publicKeys, int requiredSignCount)
 {
     std::vector<std::string> sortedSigners(publicKeys.begin(), publicKeys.end());

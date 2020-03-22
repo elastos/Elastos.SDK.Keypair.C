@@ -20,6 +20,9 @@ public:
     };
 
 public:
+    Attribute()
+    {}
+
     Attribute(Usage usage, const std::string& content)
     {
         mUsage = usage;
@@ -34,6 +37,8 @@ public:
     }
 
     void Serialize(ByteStream& ostream);
+
+    void Deserialize(ByteStream& ostream);
 
     void FromJson(const nlohmann::json &jsonData);
 

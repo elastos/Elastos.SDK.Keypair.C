@@ -39,6 +39,8 @@ public:
 
     void Serialize(ByteStream &ostream);
 
+    void Deserialize(const std::string& rawTx);
+
     void Sign(const CMBlock& privateKey);
 
     void MultiSign(const CMBlock& privateKey, const CMBlock& redeemScript);

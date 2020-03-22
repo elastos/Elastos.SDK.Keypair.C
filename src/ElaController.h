@@ -10,6 +10,8 @@ class ElaController
 public:
     static std::string genRawTransaction(const std::string& json, const std::string& assertId);
 
+    static std::string deserializeRawTransaction(const std::string& rawTx);
+
     static CMBlock GenerateRedeemScript(std::vector<std::string> publicKeys, int requiredSignCount);
 
     static std::string SerializeTransaction(const std::string& json, const std::string& assertId);

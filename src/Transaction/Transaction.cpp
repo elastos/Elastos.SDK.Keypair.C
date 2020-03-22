@@ -259,6 +259,67 @@ void Transaction::SerializeUnsigned(ByteStream &ostream) const
     ostream.writeUint32(mLockTime);
 }
 
+void Transaction::Deserialize(const std::string& rawTx)
+{
+    auto buf = Utils::decodeHex(rawTx);
+    ByteStream stream((uint8_t *)buf, buf.GetSize(), false);
+
+    uint8_t first;
+    stream.readUint8(first);
+    if (first == 9) {
+        mTxVersion = first;
+        uint8_t type;
+        stream.readUint8(type);
+        mType = (Type)type;
+    }
+    else {
+        mType = (Type)first;
+    }
+
+    stream.readUint8(mPayloadVersion);
+
+    if (mType == TransferCrossChainAsset) {
+        uint64_t size = stream.getVarUint();
+        for (uint64_t i = 0; i < size; i++) {
+            CrossChainAsset* pCrossChainAsset = new CrossChainAsset(0);
+            if (pCrossChainAsset) {
+                pCrossChainAsset->Deserialize(stream);
+                mCrossChainAssets.push_back(pCrossChainAsset);
+            }
+        }
+    }
+
+    uint64_t len = 0;
+    stream.readVarUint(len);
+    for (int i = 0; i < len; i++) {
+        Attribute* pAttr = new Attribute();
+        if (pAttr) {
+            pAttr->Deserialize(stream);
+            mAttributes.push_back(pAttr);
+        }
+    }
+
+    stream.readVarUint(len);
+    for (int i = 0; i < len; i++) {
+        UTXOInput* input = new UTXOInput();
+        if (input) {
+            input->Deserialize(stream);
+            mInputs.push_back(input);
+        }
+    }
+
+    stream.readVarUint(len);
+    for (int i = 0; i < len; i++) {
+        TxOutput* output = new TxOutput();
+        if (output) {
+            output->Deserialize(stream, mTxVersion);
+            mOutputs.push_back(output);
+        }
+    }
+
+    stream.readUint32(mLockTime);
+}
+
 void Transaction::FromJson(const nlohmann::json &jsonData, const std::string& assertId)
 {
     std::vector<nlohmann::json> jUtxoInputs = jsonData["UTXOInputs"];

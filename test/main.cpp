@@ -297,6 +297,22 @@ void Crypto(const char* plainText)
     free(decrypted);
 }
 
+void deserializeTx()
+{
+    printf("============= start deserializeTx ===========\n\n");
+    const char* rawTx = "090200010005313638303702b9e978386c5344275943696b2d7708432dea03a8890d0c17c41b2ab7f781cfc2000000000000b9e978386c5344275943696b2d7708432dea03a8890d0c17c41b2ab7f781cfc201000000000002b037db964a231458d2d6ffd5ea18944c4f90e63d547c5d3b9874df66a4ead0a3140000000000000000000000215e2b96666a1df75eaf238cd05a65bad37f3e56c90101020002210368044f3b3582000597d40c9293ea894237a88b2cd55f79a18193399937d2266414000000000000002103d55285f06683c9e5c6b5892a688affd046940c7161571611ea3a98330f72459f1400000000000000010215676988a6d7cbaf839ca6e584ddd4dd6cb7065633b80900000000000000156728c8229adfe265ed2b87fcd288b2452a0fe527cb0900000000000000b037db964a231458d2d6ffd5ea18944c4f90e63d547c5d3b9874df66a4ead0a37c85f0080000000000000000215e2b96666a1df75eaf238cd05a65bad37f3e56c9000000000001414020ca1dc3ef929e26e968a18c53b7f0667b033d1a0ab38a9017fdb9ee6b0ee5e612aaa8daae7442e0adf1c5532cda719a039602a0843c912b49bf538276d6ba8c2321020bf079596d7c4e2cd66bb21bb2ad49ecc7757cde5c710042aebfb6874b7c7d69ac";
+    char* tx = deserializeRawTransaction(rawTx);
+    if (tx == nullptr) {
+        printf("deserialized failed\n");
+    }
+    else {
+        printf("deserialized tx: %s\n", tx);
+        free(tx);
+    }
+
+    printf("============= end deserializeTx ===========\n\n");
+}
+
 const char *c_help = \
     "genmne    test generate mnemonic, get private key, public key, address.\n" \
     "hd        test generate hd wallet address.\n" \
@@ -304,6 +320,7 @@ const char *c_help = \
     "sign      test generate raw transaction.\n" \
     "cosign    test cosign raw transaction.\n" \
     "crypto    test encrytion and decryption.\n" \
+    "de        test deserialize the transaction.\n" \
     "help      show help message.\n" \
     "exit      exit the test program.\n" \
     "\n";
@@ -347,6 +364,9 @@ int main(int argc, char *argv[])
             std::cout << "input data: ";
             std::getline(std::cin, text);
             Crypto(text.c_str());
+        }
+        else if (!command.compare("de")) {
+            deserializeTx();
         }
         else if (!command.compare("vmemo")) {
             verifyMemo();

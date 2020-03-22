@@ -8,6 +8,13 @@ void CrossChainAsset::Serialize(ByteStream& ostream)
     ostream.writeUint64(mAmount);
 }
 
+void CrossChainAsset::Deserialize(ByteStream& ostream)
+{
+    ostream.readVarString(mAddress);
+    ostream.readVarUint(mIndex);
+    ostream.readUint64(mAmount);
+}
+
 void CrossChainAsset::FromJson(const nlohmann::json &jsonData)
 {
     mAddress = jsonData["address"].get<std::string>();
