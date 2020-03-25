@@ -551,3 +551,41 @@ char* getPublicKeyFromXpub(const char* xpub, int chain, int index)
 
     return pubkey;
 }
+
+static char* getAddrByInfoEx(const char* info, int signType)
+{
+    if (!info) {
+        throw std::logic_error("Invalid parameter.");
+    }
+
+    uint64_t size = strlen(info);
+
+    CMBlock data;
+    data.SetMemFixed((uint8_t*)info, size);
+
+    ByteStream buff(size + 2);
+    buff.put((uint8_t) size);
+    buff.putBytes((const uint8_t*)data, size);
+    buff.put((uint8_t) signType);
+
+    CMBlock code = buff.getBuffer();
+
+    std::string redeedScript = Utils::encodeHex(code, code.GetSize());
+
+    UInt168 hash = Utils::codeToProgramHash(redeedScript);
+
+    std::string address = Utils::UInt168ToAddress(hash);
+
+    return getResultStrEx(address.c_str(), address.length());
+}
+
+
+char* getAddressByInfo(const char* info)
+{
+    return getAddrByInfoEx(info, ELA_STANDARD);
+}
+
+char* getDidByInfo(const char* info)
+{
+    return getAddrByInfoEx(info, ELA_IDCHAIN);
+}

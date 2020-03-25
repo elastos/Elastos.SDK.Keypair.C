@@ -313,6 +313,22 @@ void deserializeTx()
     printf("============= end deserializeTx ===========\n\n");
 }
 
+void testInfoAddress(const char* info)
+{
+    if (info == nullptr) return;
+    printf("============= start deserializeTx ===========\n\n");
+
+    char* address = getAddressByInfo(info);
+    printf("address: %s\n", address);
+    free(address);
+
+    char* did = getDidByInfo(info);
+    printf("did: %s\n", did);
+    free(did);
+
+    printf("============= end deserializeTx ===========\n\n");
+}
+
 const char *c_help = \
     "genmne    test generate mnemonic, get private key, public key, address.\n" \
     "hd        test generate hd wallet address.\n" \
@@ -321,6 +337,7 @@ const char *c_help = \
     "cosign    test cosign raw transaction.\n" \
     "crypto    test encrytion and decryption.\n" \
     "de        test deserialize the transaction.\n" \
+    "info      test address and did from personal info.\n" \
     "help      show help message.\n" \
     "exit      exit the test program.\n" \
     "\n";
@@ -370,6 +387,12 @@ int main(int argc, char *argv[])
         }
         else if (!command.compare("vmemo")) {
             verifyMemo();
+        }
+        else if (!command.compare("info")) {
+            std::string text;
+            std::cout << "input data: ";
+            std::getline(std::cin, text);
+            testInfoAddress(text.c_str());
         }
         else if (command.length() != 0){
             std::cout << "not support command\n";

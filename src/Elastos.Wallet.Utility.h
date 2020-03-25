@@ -334,6 +334,10 @@ unsigned char* eciesDecrypt(const char* privateKey, const char* cipherText, int*
 
 char* getPublicKeyFromXpub(const char* xpub, int chain, int index);
 
+char* getAddressByInfo(const char* info);
+
+char* getDidByInfo(const char* info);
+
 #ifdef __cplusplus
 }
 #endif
