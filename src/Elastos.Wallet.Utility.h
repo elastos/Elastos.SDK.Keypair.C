@@ -78,7 +78,7 @@ char* getSinglePrivateKey(const void* seed, int seedLen);
  *      the master public key if succeeded, or nullptr if failed.
  *      if you no longer use, delete the pointer of MasterPublicKey.
  */
-MasterPublicKey* getMasterPublicKey(const void* seed, int seedLen, int coinType);
+struct MasterPublicKey* getMasterPublicKey(const void* seed, int seedLen, int coinType);
 
 /**
  * \~English
@@ -173,7 +173,13 @@ bool verify(const char* publicKey, const void* data, int len, const void* signed
  *      the raw transaction data if succeeded, or nullptr if failed.
  *      if you no longer use, call freeBuf to free memory.
  */
-char* generateRawTransaction(const char* transaction, const char* assertId = ELA_ASSERT_ID);
+char* generateRawTransaction(const char* transaction,
+#ifdef __cplusplus
+    const char* assertId = ELA_ASSERT_ID
+#else
+    const char* assertId
+#endif
+    );
 
 /**
  * \~English
@@ -224,7 +230,7 @@ char* generateSubPrivateKey(const void* seed, int seedLen, int coinType, int cha
  *      the sub public key if succeeded, or nullptr if failed.
  *      if you no longer use, call freeBuf to free memory.
  */
-char* generateSubPublicKey(const MasterPublicKey* masterPublicKey, int chain, int index);
+char* generateSubPublicKey(const struct MasterPublicKey* masterPublicKey, int chain, int index);
 
 /**
  * \~English
@@ -311,7 +317,13 @@ char* getMultiSignAddress(char** publicKeys, int length, int requiredSignCount);
  *      the signed transaction data in json string if succeeded, or nullptr if failed.
  *      if you no longer use, call freeBuf to free memory.
  */
-char* multiSignTransaction(const char* privateKey, char** publicKeys, int length, int requiredSignCount, const char* transaction, const char* assertId = ELA_ASSERT_ID);
+char* multiSignTransaction(const char* privateKey, char** publicKeys, int length, int requiredSignCount, const char* transaction,
+#ifdef __cplusplus
+    const char* assertId = ELA_ASSERT_ID
+#else
+    const char* assertId
+#endif
+    );
 
 /**
  * \~English
@@ -324,9 +336,21 @@ char* multiSignTransaction(const char* privateKey, char** publicKeys, int length
  *      the serialized transaction data in json string if succeeded, or nullptr if failed.
  *      if you no longer use, call freeBuf to free memory.
  */
-char* serializeMultiSignTransaction(const char* transaction, const char* assertId = ELA_ASSERT_ID);
+char* serializeMultiSignTransaction(const char* transaction,
+#ifdef __cplusplus
+    const char* assertId = ELA_ASSERT_ID
+#else
+    const char* assertId
+#endif
+    );
 
-char** getSignedSigners(const char* transaction, int* outLen, const char* assertId = ELA_ASSERT_ID);
+char** getSignedSigners(const char* transaction, int* outLen,
+#ifdef __cplusplus
+    const char* assertId = ELA_ASSERT_ID
+#else
+    const char* assertId
+#endif
+);
 
 char* eciesEncrypt(const char* publicKey, const unsigned char * plainText, int length);
 
