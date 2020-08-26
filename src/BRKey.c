@@ -57,7 +57,7 @@ static secp256k1_context *_ctx = NULL;
 static void _ctx_init()
 {
     //pthread_detach(pthread_self());
-    _ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+    _ctx = ela_secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 }
 
 // assigns secret to key and returns true on success
@@ -70,7 +70,7 @@ int BRKeySetSecret(BRKey *key, const UInt256 *secret, int compressed)
     BRKeyClean(key);
     UInt256Get(&key->secret, secret);
     key->compressed = compressed;
-    return secp256k1_ec_seckey_verify(_ctx, key->secret.u8);
+    return ela_secp256k1_ec_seckey_verify(_ctx, key->secret.u8);
 }
 
 // wipes key material from key
@@ -93,7 +93,7 @@ int BRKeySetPubKey(BRKey *key, const uint8_t *pubKey, size_t pkLen)
     BRKeyClean(key);
     memcpy(key->pubKey, pubKey, pkLen);
     key->compressed = (pkLen <= 33);
-    return secp256k1_ec_pubkey_parse(_ctx, &pk, key->pubKey, pkLen);
+    return ela_secp256k1_ec_pubkey_parse(_ctx, &pk, key->pubKey, pkLen);
 }
 
 // writes the DER encoded public key to pubKey and returns number of bytes written, or pkLen needed if pubKey is NULL
@@ -106,8 +106,8 @@ size_t BRKeyPubKey(BRKey *key, void *pubKey, size_t pkLen)
     assert(key != NULL);
 
     if (memcmp(key->pubKey, empty, size) == 0) {
-        if (secp256k1_ec_pubkey_create(_ctx, &pk, key->secret.u8)) {
-            secp256k1_ec_pubkey_serialize(_ctx, key->pubKey, &size, &pk,
+        if (ela_secp256k1_ec_pubkey_create(_ctx, &pk, key->secret.u8)) {
+            ela_secp256k1_ec_pubkey_serialize(_ctx, key->pubKey, &size, &pk,
                                           (key->compressed ? SECP256K1_EC_COMPRESSED : SECP256K1_EC_UNCOMPRESSED));
         }
         else size = 0;
@@ -126,11 +126,11 @@ UInt160 BRKeyHash160(BRKey *key)
 
     assert(key != NULL);
     len = BRKeyPubKey(key, NULL, 0);
-    if (len > 0 && secp256k1_ec_pubkey_parse(_ctx, &pk, key->pubKey, len)) BRHash160(&hash, key->pubKey, len);
+    if (len > 0 && ela_secp256k1_ec_pubkey_parse(_ctx, &pk, key->pubKey, len)) BRHash160(&hash, key->pubKey, len);
     return hash;
 }
 
-// simple version of secp256k1_ec_pubkey_parse(_ctx, &pk, key->pubKey, pkLen)
+// simple version of ela_secp256k1_ec_pubkey_parse(_ctx, &pk, key->pubKey, pkLen)
 // assigns DER encoded pubKey to key and returns true on success
 int BRKeyPubKeyDecode(secp256k1_pubkey *pk, const uint8_t *input, size_t inputlen)
 {

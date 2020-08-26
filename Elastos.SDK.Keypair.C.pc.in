@@ -9,7 +9,7 @@ Name: Elastos.SDK.Keypair.C
 Description: Elastos.SDK.Keypair.C
 Version: @PACKAGE_VERSION@
 
-Requires:
+Requires: openssl
 Libs: -L${libdir} -lElastos.SDK.Keypair.C
 Libs.private: ${libdir}
 Cflags: -I${includedir}/Elastos.SDK.Keypair.C

@@ -29,11 +29,11 @@ static void bench_ecdh_setup(void* arg) {
     };
 
     /* create a context with no capabilities */
-    data->ctx = secp256k1_context_create(SECP256K1_FLAGS_TYPE_CONTEXT);
+    data->ctx = ela_secp256k1_context_create(SECP256K1_FLAGS_TYPE_CONTEXT);
     for (i = 0; i < 32; i++) {
         data->scalar[i] = i + 1;
     }
-    CHECK(secp256k1_ec_pubkey_parse(data->ctx, &data->point, point, sizeof(point)) == 1);
+    CHECK(ela_secp256k1_ec_pubkey_parse(data->ctx, &data->point, point, sizeof(point)) == 1);
 }
 
 static void bench_ecdh(void* arg) {
@@ -42,7 +42,7 @@ static void bench_ecdh(void* arg) {
     bench_ecdh_data *data = (bench_ecdh_data*)arg;
 
     for (i = 0; i < 20000; i++) {
-        CHECK(secp256k1_ecdh(data->ctx, res, &data->point, data->scalar) == 1);
+        CHECK(ela_secp256k1_ecdh(data->ctx, res, &data->point, data->scalar) == 1);
     }
 }
 
