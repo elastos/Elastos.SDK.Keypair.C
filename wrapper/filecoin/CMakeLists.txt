@@ -32,9 +32,16 @@ target_link_libraries(filecoin PUBLIC
     "p2p_multihash"
     "p2p_multibase_codec"
     "p2p_sha"
-    # "buffer"
-    # "bls_provider"
     )
+
+
+if("${CFG_TARGET_PLATFORM}" STREQUAL "iOS")
+target_link_libraries(filecoin PUBLIC
+    "objc"
+    "-framework Security"
+    )
+endif()
+
 target_link_libraries(filecoin PRIVATE
 	thirdparty)
 

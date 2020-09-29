@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sstream>
 #include "../src/Utils.h"
 #include "../wrapper/filecoin/FileCoin.hpp"
+#include "../src/Base64.h"
 
 char* readMnemonicFile(const char* path)
 {
@@ -330,6 +332,7 @@ void testInfoAddress(const char* info)
     printf("============= end deserializeTx ===========\n\n");
 }
 
+#ifdef CFG_WITH_FILECOIN
 void TestFileCoin()
 {
     printf("============= start TestFileCoin ===========\n");
@@ -373,7 +376,7 @@ void TestFileCoin()
     bool bVerify = FileCoin::Verify(publicKey, (void*)unsignedData.c_str(), unsignedData.length(), signature, signSize);
     printf("filecoin verify data result: %d\n", bVerify);
 
-    auto signBase64 = libp2p::multi::detail::encodeBase64({signature, signature + signSize});
+    auto signBase64 = Base64::fromBits(signature, signSize);
 
     std::stringstream signedData;
     signedData << "{";
@@ -436,6 +439,7 @@ void TestFileCoinTransaction()
 
     printf("============= end TestFileCoinTransaction ===========\n");
 }
+#endif
 
 const char *c_help = \
     "genmne    test generate mnemonic, get private key, public key, address.\n" \

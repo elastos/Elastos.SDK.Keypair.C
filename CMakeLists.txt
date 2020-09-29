@@ -7,6 +7,7 @@ add_subdirectory(thirdparty)
 add_subdirectory(src)
 
 if(CFG_WITH_FILECOIN)
+	add_compile_definitions(CFG_WITH_FILECOIN)
 	add_subdirectory(wrapper/filecoin)
 endif()
 

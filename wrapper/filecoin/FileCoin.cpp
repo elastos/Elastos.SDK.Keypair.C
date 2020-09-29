@@ -12,7 +12,7 @@
 
 namespace FileCoin {
 
-static std::shared_ptr<fc::vm::message::UnsignedMessage>
+static fc::vm::message::UnsignedMessage
 parseUnsignedMessage(const char* txStr);
 
 char* GetSinglePrivateKey(const void* seed, int seedLen)
@@ -159,12 +159,12 @@ bool Verify(const char* publicKey,
 char* GenerateRawTransaction(const char* privateKey, const char* transaction)
 {
     auto unsignedMsg = parseUnsignedMessage(transaction);
-    if(unsignedMsg == nullptr) {
+    if(unsignedMsg.version < 0) {
         printf("Failed to parse unsigned message. transaction: %s\n", transaction);
         return nullptr;
     }
 
-    auto unsignedMsgCid = fc::vm::message::cid(*unsignedMsg);
+    auto unsignedMsgCid = fc::vm::message::cid(unsignedMsg);
     auto unsignedMsgSerialized = unsignedMsgCid.value().toBytes().value();
     printf("unsignedMsgSerialized size: %zu\n", unsignedMsgSerialized.size());
 
@@ -188,27 +188,27 @@ char* GenerateRawTransaction(const char* privateKey, const char* transaction)
     return strdup(signedData.str().c_str());
 }
 
-static std::shared_ptr<fc::vm::message::UnsignedMessage>
+static fc::vm::message::UnsignedMessage
 parseUnsignedMessage(const char* txStr) {
-    auto umsg = std::make_shared<fc::vm::message::UnsignedMessage>();
+    fc::vm::message::UnsignedMessage umsg;
     nlohmann::json umsgJson = nlohmann::json::parse(txStr);
 
+    umsg.version = -1;
     try {
-        umsg->version = fc::vm::message::kMessageVersion;
-        umsg->to = fc::primitives::address::decodeFromString(umsgJson["to"].get<std::string>()).value();
-        umsg->from = fc::primitives::address::decodeFromString(umsgJson["from"].get<std::string>()).value();
-        umsg->nonce = umsgJson["nonce"];
+        umsg.version = fc::vm::message::kMessageVersion;
+        umsg.to = fc::primitives::address::decodeFromString(umsgJson["to"].get<std::string>()).value();
+        umsg.from = fc::primitives::address::decodeFromString(umsgJson["from"].get<std::string>()).value();
+        umsg.nonce = umsgJson["nonce"];
 
-        umsg->value = std::stoll(umsgJson["value"].get<std::string>());
-        umsg->gas_fee_cap = std::stoll(umsgJson["gasFeeCap"].get<std::string>());
-        umsg->gas_premium = std::stoll(umsgJson["gasPremium"].get<std::string>());
-        umsg->gas_limit = umsgJson["gasLimit"].get<uint64_t>();
+        umsg.value = std::stoll(umsgJson["value"].get<std::string>());
+        umsg.gas_fee_cap = std::stoll(umsgJson["gasFeeCap"].get<std::string>());
+        umsg.gas_premium = std::stoll(umsgJson["gasPremium"].get<std::string>());
+        umsg.gas_limit = umsgJson["gasLimit"].get<uint64_t>();
 
-        umsg->method = fc::vm::actor::MethodNumber{0};
-        umsg->params = fc::vm::actor::MethodParams{};
+        umsg.method = fc::vm::actor::MethodNumber{0};
+        umsg.params = fc::vm::actor::MethodParams{};
     } catch (const std::exception &e) {
         printf("Failed parse unsigned message json string.\n");
-        return nullptr;
     }
 
     return umsg;
