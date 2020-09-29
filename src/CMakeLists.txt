@@ -18,6 +18,9 @@ target_link_libraries(Elastos.SDK.Keypair.C PUBLIC
 	${pkg-openssl_STATIC_LDFLAGS})
 target_link_libraries(Elastos.SDK.Keypair.C PRIVATE
     thirdparty)
+if(DEFINED CFG_WITH_FILECOIN)
+target_link_libraries(Elastos.SDK.Keypair.C PRIVATE filecoin)
+endif()
 if("${CFG_TARGET_PLATFORM}" STREQUAL "Android")
     target_link_libraries(Elastos.SDK.Keypair.C PRIVATE log)
 endif()

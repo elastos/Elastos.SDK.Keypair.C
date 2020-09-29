@@ -1,0 +1,46 @@
+file( GLOB filecoin-SOURCES "*.cpp" "*.c")
+file( GLOB filecoin-HEADERS "*.hpp" )
+
+if(${CMAKE_VERSION} VERSION_LESS "3.12")
+    add_library(filecoin STATIC ${filecoin-SOURCES})
+else()
+    add_library(filecoin OBJECT ${filecoin-SOURCES})
+endif()
+target_include_directories(filecoin PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${PROJECT_SOURCE_DIR}/src"
+    "${CMAKE_INSTALL_PREFIX}/include"
+    "${CMAKE_INSTALL_PREFIX}/include/cpp-filecoin"
+    "${CMAKE_INSTALL_PREFIX}/include/cpp-filecoin/core"
+    "${CMAKE_INSTALL_PREFIX}/include/cpp-filecoin/tinycbor")
+target_link_libraries(filecoin PUBLIC
+    "filcrypto"
+
+    "address"
+    "p2p_uvarint"
+    "p2p_hexutil"
+
+    "message"
+    "buffer"
+    "cbor"
+    "cid"
+    "blake2"
+    "blob"
+    "tinycbor"
+    "hexutil"
+    "p2p_cid"
+    "p2p_multihash"
+    "p2p_multibase_codec"
+    "p2p_sha"
+    # "buffer"
+    # "bls_provider"
+    )
+target_link_libraries(filecoin PRIVATE
+	thirdparty)
+
+
+set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
+
+set_target_properties(filecoin PROPERTIES PUBLIC_HEADER "${filecoin-HEADERS}")
+install(TARGETS filecoin
+		PUBLIC_HEADER DESTINATION include/Elastos.SDK.Keypair.C)

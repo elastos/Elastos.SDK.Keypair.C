@@ -6,7 +6,11 @@ project(Elastos.SDK.Keypair.C)
 add_subdirectory(thirdparty)
 add_subdirectory(src)
 
-if(DEFINED CFG_WITH_TEST)
+if(CFG_WITH_FILECOIN)
+	add_subdirectory(wrapper/filecoin)
+endif()
+
+if(CFG_WITH_TEST)
 	add_subdirectory(test)
 endif()
 
