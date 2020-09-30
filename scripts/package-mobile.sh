@@ -14,6 +14,7 @@ git submodule update;
 
 build_extfunc()
 {
+    echo =========$@
 	"$BUILD_SH" $@;
 }
 export CFG_PROJECT_DIR="$PROJECT_DIR";
