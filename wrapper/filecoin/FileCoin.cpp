@@ -4,6 +4,8 @@
 #include "Utils.h"
 #include <filcrypto.h>
 #include <core/primitives/address/address_codec.hpp>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
 #include <vm/message/message_util.hpp>
 // #include <vm/actor/actor.hpp>
 // #include "crypto/bls/impl/bls_provider_impl.hpp"
@@ -12,8 +14,8 @@
 
 namespace FileCoin {
 
-static fc::vm::message::UnsignedMessage
-parseUnsignedMessage(const char* txStr);
+static fc::vm::message::UnsignedMessage parseUnsignedMessage(const char* txStr);
+static std::string base64Encode(const uint8_t* data, int size);
 
 char* GetSinglePrivateKey(const void* seed, int seedLen)
 {
@@ -172,7 +174,7 @@ char* GenerateRawTransaction(const char* privateKey, const char* transaction)
     int signSize = FileCoin::Sign(privateKey, (void*)unsignedMsgSerialized.data(), unsignedMsgSerialized.size(), (void**)&signature);
     printf("filecoin signed data len: %d\n", signSize);
 
-    auto signBase64 = Base64::fromBits(signature, signSize);
+    auto signBase64 = base64Encode(signature, signSize);
     printf("signature : %s\n", signBase64.c_str());
 
     std::stringstream signedData;
@@ -195,23 +197,41 @@ parseUnsignedMessage(const char* txStr) {
 
     umsg.version = -1;
     try {
-        umsg.version = fc::vm::message::kMessageVersion;
-        umsg.to = fc::primitives::address::decodeFromString(umsgJson["to"].get<std::string>()).value();
-        umsg.from = fc::primitives::address::decodeFromString(umsgJson["from"].get<std::string>()).value();
-        umsg.nonce = umsgJson["nonce"];
+        umsg.version = umsgJson["Version"].get<uint64_t>();
+        umsg.to = fc::primitives::address::decodeFromString(umsgJson["To"].get<std::string>()).value();
+        umsg.from = fc::primitives::address::decodeFromString(umsgJson["From"].get<std::string>()).value();
+        umsg.nonce = umsgJson["Nonce"];
 
-        umsg.value = std::stoll(umsgJson["value"].get<std::string>());
-        umsg.gas_fee_cap = std::stoll(umsgJson["gasFeeCap"].get<std::string>());
-        umsg.gas_premium = std::stoll(umsgJson["gasPremium"].get<std::string>());
-        umsg.gas_limit = umsgJson["gasLimit"].get<uint64_t>();
+        umsg.value = std::stoll(umsgJson["Value"].get<std::string>());
+        umsg.gas_fee_cap = std::stoll(umsgJson["GasFeeCap"].get<std::string>());
+        umsg.gas_premium = std::stoll(umsgJson["GasPremium"].get<std::string>());
+        umsg.gas_limit = umsgJson["GasLimit"].get<uint64_t>();
 
-        umsg.method = fc::vm::actor::MethodNumber{0};
+        umsg.method = fc::vm::actor::MethodNumber{umsgJson["Method"].get<uint64_t>()};
         umsg.params = fc::vm::actor::MethodParams{};
     } catch (const std::exception &e) {
         printf("Failed parse unsigned message json string.\n");
     }
 
     return umsg;
+}
+
+static std::string base64Encode(const uint8_t* data, int size)
+{
+    BIO* b64 = BIO_new(BIO_f_base64());
+    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+    BIO* sink = BIO_new(BIO_s_mem());
+    BIO_push(b64, sink);
+    BIO_write(b64, data, size);
+    BIO_flush(b64);
+
+    const char* encoded;
+    const long len = BIO_get_mem_data(sink, &encoded);
+
+    auto ret = std::string(encoded, len);
+
+    BIO_free_all(b64);
+    return ret;
 }
 
 } // namespace FileCoin

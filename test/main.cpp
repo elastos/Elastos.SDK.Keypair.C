@@ -417,17 +417,29 @@ void TestFileCoinTransaction()
     printf("filecoin single address: %s\n\n", address);
 
     std::string unsignedData = std::string()
-        + "{"
-        + "\"to\": \"t3xcnpgqifiwjivr65ylnxrvk3qjxb2hu5wz5b26z6kzr7z5shu4bicfwhv5vyoxyfiy6pjpj44cwndtmwe4ka\","
-        + "\"from\": \"" + address + "\","
-        + "\"value\": \"1\","
-        + "\"gasPremium\": \"1000000\","
-        + "\"gasFeeCap\": \"1000000\","
-        + "\"gasLimit\": 80000000,"
-        + "\"method\": 0,"
-        + "\"nonce\": 0,"
-        + "\"params\": \"\""
-        + "}";
+        +"{"
+        +"\"Version\": 0,"
+        +"\"To\": \"t3xcnpgqifiwjivr65ylnxrvk3qjxb2hu5wz5b26z6kzr7z5shu4bicfwhv5vyoxyfiy6pjpj44cwndtmwe4ka\","
+        +"\"From\": \"t3s7px2ud2iajvsuxnynq4dvf4wbxrey4ipt3csk444irrgsorq5ctrknrtqml5kwewifbgqikecgdgnmbpq5a\","
+        +"\"Nonce\": 10,"
+        +"\"Value\": \"1\","
+        +"\"GasPremium\": \"1000000\","
+        +"\"GasFeeCap\": \"1000000\","
+        +"\"GasLimit\": 80000000,"
+        +"\"Method\": 0,"
+        +"\"Params\": \"\""
+        +"}";
+        //+ "{"
+        //+ "\"to\": \"t3xcnpgqifiwjivr65ylnxrvk3qjxb2hu5wz5b26z6kzr7z5shu4bicfwhv5vyoxyfiy6pjpj44cwndtmwe4ka\","
+        //+ "\"from\": \"" + address + "\","
+        //+ "\"value\": \"1\","
+        //+ "\"gasPremium\": \"1000000\","
+        //+ "\"gasFeeCap\": \"1000000\","
+        //+ "\"gasLimit\": 80000000,"
+        //+ "\"method\": 0,"
+        //+ "\"nonce\": 0,"
+        //+ "\"params\": \"\""
+        //+ "}";
     printf("filecoin unsigned data: %s\n", unsignedData.c_str());
     char* signedData = FileCoin::GenerateRawTransaction(privateKey, unsignedData.c_str());
     printf("filecoin signed data: %s\n", signedData);
