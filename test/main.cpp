@@ -337,7 +337,8 @@ void TestFileCoin()
 {
     printf("============= start TestFileCoin ===========\n");
 
-    const char* mnemonic = "voice kingdom wall sword pair unusual artefact opera keen aware stay game";
+    //const char* mnemonic = "voice kingdom wall sword pair unusual artefact opera keen aware stay game";
+    const char* mnemonic = "equip will roof matter pink blind book anxiety banner elbow sun young";
 
     //char* mnemonic = generateMnemonic("english", "");
     //printf("mnemonic: %s\n", mnemonic);

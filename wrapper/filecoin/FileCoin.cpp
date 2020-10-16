@@ -94,7 +94,9 @@ char* GetAddress(const char* publicKey)
     fc::primitives::address::BlsPublicKey filBlsPubKey;
     std::copy_n(filPubKey, sizeof(filPubKey), filBlsPubKey.begin());
     // auto filBlsPubKey = BlsPublicKey(std::begin(filPubKey), std::end(filPubKey));
-    auto filAddr = fc::primitives::address::Address::makeBls(filBlsPubKey);
+    auto filAddr = fc::primitives::address::Address::makeBls(
+                        filBlsPubKey,
+                        fc::primitives::address::Network::MAINNET);
     auto addr = fc::primitives::address::encodeToString(filAddr);
 
     return strdup(addr.c_str());
@@ -197,7 +199,6 @@ parseUnsignedMessage(const char* txStr) {
 
     umsg.version = -1;
     try {
-        umsg.version = umsgJson["Version"].get<uint64_t>();
         umsg.to = fc::primitives::address::decodeFromString(umsgJson["To"].get<std::string>()).value();
         umsg.from = fc::primitives::address::decodeFromString(umsgJson["From"].get<std::string>()).value();
         umsg.nonce = umsgJson["Nonce"];
@@ -209,6 +210,8 @@ parseUnsignedMessage(const char* txStr) {
 
         umsg.method = fc::vm::actor::MethodNumber{umsgJson["Method"].get<uint64_t>()};
         umsg.params = fc::vm::actor::MethodParams{};
+
+        umsg.version = umsgJson["Version"].get<uint64_t>();
     } catch (const std::exception &e) {
         printf("Failed parse unsigned message json string.\n");
     }
