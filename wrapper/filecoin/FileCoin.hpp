@@ -11,6 +11,7 @@ char* GetSinglePrivateKey(const void* seed, int seedLen);
 char* GetSinglePublicKey(const void* seed, int seedLen);
 char* GetPublicKeyFromPrivateKey(const char* privateKey);
 char* GetAddress(const char* publicKey);
+bool IsAddressValid(const char* address);
 
 int Sign(const char* privateKey,
          const void* data, int len,

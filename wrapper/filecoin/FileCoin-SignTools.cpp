@@ -135,6 +135,30 @@ char* GetAddress(const char* publicKey)
     return strdup(fcAddress.get());
 }
 
+bool IsAddressValid(const char* address)
+{
+    if (!address) {
+        throw std::logic_error("Invalid parameter.");
+    }
+
+    auto fcError = MakeFileCoinError();
+
+    auto creater = [&]() -> char* {
+        auto ptr = elastos_filecoin_signer_is_valid_addr(address, fcError.get());
+        return ptr;
+    };
+    auto deleter = [=](char *ptr) -> void {
+        filecoin_signer_string_free(ptr);
+    };
+    auto fcValidStr = std::shared_ptr<char>(creater(), deleter);
+    if(fcValidStr.get() == nullptr || fcError->code != 0) {
+        printf("Failed filecoin-signer valid address: %s\n", fcError->message);
+        return false;
+    }
+
+    return (std::string(fcValidStr.get()) == "t");
+}
+
 int Sign(const char* privateKey,
          const void* data, int len,
          void** signedData)
@@ -188,7 +212,7 @@ bool Verify(const char* publicKey,
     auto fcVerifyStr = std::shared_ptr<char>(creater(), deleter);
     if(fcVerifyStr.get() == nullptr || fcError->code != 0) {
         printf("Failed filecoin-signer verify: %s\n", fcError->message);
-        return -1;
+        return false;
     }
 
     return (std::string(fcVerifyStr.get()) == "t");

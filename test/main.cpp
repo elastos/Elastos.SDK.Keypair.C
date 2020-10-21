@@ -360,8 +360,13 @@ void TestFileCoin()
     char* address = FileCoin::GetAddress(publicKey);
     printf("filecoin single address from pubkey: %s\n\n", address);
 
-    std::string unsignedData = 
-        "testdata testdata";
+    bool valid = FileCoin::IsAddressValid(address);
+    printf("filecoin single address valid: %d\n\n", valid);
+
+    valid = FileCoin::IsAddressValid((std::string(address) + "bad address").c_str());
+    printf("filecoin single address valid: %d\n\n", valid);
+
+    std::string unsignedData = "testdata testdata";
     printf("filecoin unsigned data: %s\n", unsignedData.c_str());
 
     uint8_t* signature;
@@ -370,6 +375,10 @@ void TestFileCoin()
 
     bool bVerify = FileCoin::Verify(publicKey, (void*)unsignedData.c_str(), unsignedData.length(), signature, signSize);
     printf("filecoin verify data result: %d\n", bVerify);
+
+    std::string badData = "bad testdata testdata";
+    bVerify = FileCoin::Verify(publicKey, (void*)badData.c_str(), badData.length(), signature, signSize);
+    printf("filecoin verify bad data result: %d\n", bVerify);
 
     free(signature);
     free(privateKey);
