@@ -39,7 +39,7 @@ build_extfunc_depends()
 	logdbg "CFG_WITH_FILECOIN=$CFG_WITH_FILECOIN";
 	if [[ $CFG_WITH_FILECOIN == true ]]; then
 		#"$DEPENDS_DIR/scripts/build-cpp-filecoin.sh" $@;
-        "$DEPENDS_DIR/scripts/build-filecoin-ffi.sh" $@;
+        #"$DEPENDS_DIR/scripts/build-filecoin-ffi.sh" $@;
         "$DEPENDS_DIR/scripts/build-filecoin-signing-tools/build.sh" $@;
 	fi
 
