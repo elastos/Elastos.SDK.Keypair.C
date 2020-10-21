@@ -13,27 +13,30 @@ target_include_directories(filecoin PUBLIC
     "${CMAKE_INSTALL_PREFIX}/include/cpp-filecoin"
     "${CMAKE_INSTALL_PREFIX}/include/cpp-filecoin/core"
     "${CMAKE_INSTALL_PREFIX}/include/cpp-filecoin/tinycbor")
+# target_link_libraries(filecoin PUBLIC
+#     "filcrypto"
+
+#     "address"
+#     "p2p_uvarint"
+#     "p2p_hexutil"
+
+#     "message"
+#     "buffer"
+#     "cbor"
+#     "cid"
+#     "blake2"
+#     "blob"
+#     "tinycbor"
+#     "hexutil"
+#     "p2p_cid"
+#     "p2p_multihash"
+#     "p2p_multibase_codec"
+#     "p2p_sha"
+#     )
+
 target_link_libraries(filecoin PUBLIC
-    "filcrypto"
-
-    "address"
-    "p2p_uvarint"
-    "p2p_hexutil"
-
-    "message"
-    "buffer"
-    "cbor"
-    "cid"
-    "blake2"
-    "blob"
-    "tinycbor"
-    "hexutil"
-    "p2p_cid"
-    "p2p_multihash"
-    "p2p_multibase_codec"
-    "p2p_sha"
-    )
-
+    "filecoin_signer_ffi"
+)
 
 if("${CFG_TARGET_PLATFORM}" STREQUAL "iOS")
 target_link_libraries(filecoin PUBLIC

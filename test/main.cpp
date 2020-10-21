@@ -337,37 +337,31 @@ void TestFileCoin()
 {
     printf("============= start TestFileCoin ===========\n");
 
-    //const char* mnemonic = "voice kingdom wall sword pair unusual artefact opera keen aware stay game";
-    const char* mnemonic = "equip will roof matter pink blind book anxiety banner elbow sun young";
+    // const char* mnemonic = "voice kingdom wall sword pair unusual artefact opera keen aware stay game";
+    const char* mnemonic = "督 辉 稿 谋 速 壁 阿 耗 瓷 仓 归 说";
 
     //char* mnemonic = generateMnemonic("english", "");
-    //printf("mnemonic: %s\n", mnemonic);
+    printf("mnemonic: %s\n", mnemonic);
 
     void* seed;
-    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "");
+    int seedLen = FileCoin::GetSeedFromMnemonic(&seed, mnemonic, "");
     printf("seed length: %d\n", seedLen);
 
     char* privateKey = FileCoin::GetSinglePrivateKey(seed, seedLen);
-    printf("filecoin single private key: %s\n", privateKey);
+    printf("filecoin single private key from seed: %s\n", privateKey);
 
     char* publicKey = FileCoin::GetSinglePublicKey(seed, seedLen);
-    printf("filecoin single public key: %s\n", publicKey);
+    printf("filecoin single public key from seed: %s\n", publicKey);
+
+    free(publicKey);
+    publicKey = FileCoin::GetPublicKeyFromPrivateKey(privateKey);
+    printf("filecoin single public key from privkey: %s\n", publicKey);
 
     char* address = FileCoin::GetAddress(publicKey);
-    printf("filecoin single address: %s\n\n", address);
+    printf("filecoin single address from pubkey: %s\n\n", address);
 
     std::string unsignedData = 
-        "{"
-        "\"to\": \"t3xcnpgqifiwjivr65ylnxrvk3qjxb2hu5wz5b26z6kzr7z5shu4bicfwhv5vyoxyfiy6pjpj44cwndtmwe4ka\","
-        "\"from\": \"t3s7px2ud2iajvsuxnynq4dvf4wbxrey4ipt3csk444irrgsorq5ctrknrtqml5kwewifbgqikecgdgnmbpq5a\","
-        "\"value\": \"1\","
-        "\"gasPremium\": \"1000000\","
-        "\"gasFeeCap\": \"1000000\","
-        "\"gasLimit\": 80000000,"
-        "\"method\": 0,"
-        "\"nonce\": 0,"
-        "\"params\": \"\""
-        "}";
+        "testdata testdata";
     printf("filecoin unsigned data: %s\n", unsignedData.c_str());
 
     uint8_t* signature;
@@ -376,18 +370,6 @@ void TestFileCoin()
 
     bool bVerify = FileCoin::Verify(publicKey, (void*)unsignedData.c_str(), unsignedData.length(), signature, signSize);
     printf("filecoin verify data result: %d\n", bVerify);
-
-    auto signBase64 = Base64::fromBits(signature, signSize);
-
-    std::stringstream signedData;
-    signedData << "{";
-    signedData <<   "\"Message\": "<< unsignedData << ",";
-    signedData <<   "\"Signature\": {";
-    signedData <<       "\"Type\": 1,";
-    signedData <<       "\"Data\": \"" << signBase64 << "\"";
-    signedData <<   "}";
-    signedData << "}";
-    printf("filecoin signed data: %s\n", signedData.str().c_str());
 
     free(signature);
     free(privateKey);
@@ -404,10 +386,10 @@ void TestFileCoinTransaction()
     const char* mnemonic = "voice kingdom wall sword pair unusual artefact opera keen aware stay game";
 
     //char* mnemonic = generateMnemonic("english", "");
-    //printf("mnemonic: %s\n", mnemonic);
+    printf("mnemonic: %s\n", mnemonic);
 
     void* seed;
-    int seedLen = getSeedFromMnemonic(&seed, mnemonic, "");
+    int seedLen = FileCoin::GetSeedFromMnemonic(&seed, mnemonic, "");
     printf("seed length: %d\n", seedLen);
 
     char* privateKey = FileCoin::GetSinglePrivateKey(seed, seedLen);
@@ -420,8 +402,8 @@ void TestFileCoinTransaction()
     std::string unsignedData = std::string()
         +"{"
         +"\"Version\": 0,"
-        +"\"To\": \"t3xcnpgqifiwjivr65ylnxrvk3qjxb2hu5wz5b26z6kzr7z5shu4bicfwhv5vyoxyfiy6pjpj44cwndtmwe4ka\","
-        +"\"From\": \"t3s7px2ud2iajvsuxnynq4dvf4wbxrey4ipt3csk444irrgsorq5ctrknrtqml5kwewifbgqikecgdgnmbpq5a\","
+        +"\"To\": \"f1xdu2aw76cnuygue2gbm3hyg4wso3s2ob6povykq\","
+        +"\"From\": \"f1xdu2aw76cnuygue2gbm3hyg4wso3s2ob6povykq\","
         +"\"Nonce\": 10,"
         +"\"Value\": \"1\","
         +"\"GasPremium\": \"1000000\","
@@ -430,17 +412,6 @@ void TestFileCoinTransaction()
         +"\"Method\": 0,"
         +"\"Params\": \"\""
         +"}";
-        //+ "{"
-        //+ "\"to\": \"t3xcnpgqifiwjivr65ylnxrvk3qjxb2hu5wz5b26z6kzr7z5shu4bicfwhv5vyoxyfiy6pjpj44cwndtmwe4ka\","
-        //+ "\"from\": \"" + address + "\","
-        //+ "\"value\": \"1\","
-        //+ "\"gasPremium\": \"1000000\","
-        //+ "\"gasFeeCap\": \"1000000\","
-        //+ "\"gasLimit\": 80000000,"
-        //+ "\"method\": 0,"
-        //+ "\"nonce\": 0,"
-        //+ "\"params\": \"\""
-        //+ "}";
     printf("filecoin unsigned data: %s\n", unsignedData.c_str());
     char* signedData = FileCoin::GenerateRawTransaction(privateKey, unsignedData.c_str());
     printf("filecoin signed data: %s\n", signedData);

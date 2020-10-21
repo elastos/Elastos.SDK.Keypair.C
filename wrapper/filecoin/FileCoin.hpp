@@ -6,6 +6,7 @@
 
 namespace FileCoin {
 
+int GetSeedFromMnemonic(void** seed, const char* mnemonic, const char* mnemonicPassword);
 char* GetSinglePrivateKey(const void* seed, int seedLen);
 char* GetSinglePublicKey(const void* seed, int seedLen);
 char* GetPublicKeyFromPrivateKey(const char* privateKey);

@@ -1,5 +1,6 @@
 #include "FileCoin.hpp"
 
+#if 0
 #include "Elastos.Wallet.Utility.h"
 #include "Utils.h"
 #include <filcrypto.h>
@@ -9,6 +10,7 @@
 #include <vm/message/message_util.hpp>
 // #include <vm/actor/actor.hpp>
 // #include "crypto/bls/impl/bls_provider_impl.hpp"
+#include "Elastos.Wallet.Utility.h"
 #include "Base64.h"
 #include "nlohmann/json.hpp"
 
@@ -16,6 +18,11 @@ namespace FileCoin {
 
 static fc::vm::message::UnsignedMessage parseUnsignedMessage(const char* txStr);
 static std::string base64Encode(const uint8_t* data, int size);
+
+int GetSeedFromMnemonic(void** seed, const char* mnemonic, const char* mnemonicPassword)
+{
+    return getSeedFromMnemonic(seed, mnemonic, mnemonicPassword);
+}
 
 char* GetSinglePrivateKey(const void* seed, int seedLen)
 {
@@ -238,3 +245,5 @@ static std::string base64Encode(const uint8_t* data, int size)
 }
 
 } // namespace FileCoin
+
+#endif
